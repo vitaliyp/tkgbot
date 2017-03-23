@@ -69,7 +69,22 @@ def get_updated_topics():
         else:
             topic['section_name'] = None
             topic['section_link'] = None
+            topic['section_node_id'] = None
 
+        count_el = tr.find('td', class_='views-field-comment-count')
+        count_strings = list(count_el.stripped_strings)
+        new_count = None
+        total_count = None
+        try:
+            if not count_strings or len(count_strings)>2:
+                continue
+            if len(count_strings)==2:
+                new_count = int(count_strings[1].split()[0])
+            total_count = int(count_strings[0])
+        except ValueError:
+            continue
+        topic['new_messages_count'] = new_count
+        topic['messages_count'] = total_count
 
         topics.append(topic)
     return topics

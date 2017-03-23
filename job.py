@@ -42,9 +42,10 @@ def run():
     # for every topic and it's section find subscribed users
     updates = defaultdict(list) 
     for topic in updated_topics:
-        if topic['status']=='updated':
+        if topic['new_messages_count']:
             users = set(subscriptions.get_subscribed_users(topic['node_id']))
-            users.update(subscriptions.get_subscribed_users(topic['section_node_id']))
+            if topic['section_node_id']:
+                users.update(subscriptions.get_subscribed_users(topic['section_node_id']))
             users.update(subscriptions.get_subscribed_users(0))
 
             comments = forum.get_new_comments_in_topic(topic['link'])
