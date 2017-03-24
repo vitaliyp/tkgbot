@@ -4,13 +4,14 @@ from flask import jsonify
 import secret
 import requests
 
+
 import subscriptions
 
 app = Flask(__name__)
 
-MSG_INCORRECT_COMMAND='Incorrect command. Use /list for the list of commands.'
-MSG_NO_COMMAND='Use /list for the list of commands.'
-MSG_LIST='/show - Show your subscriptions\n/sub node - Subscribe\n/unsub node - Unsubscribe\n/unsuball - Remove all subscriptions\n/list - Show this message'
+MSG_INCORRECT_COMMAND='Incorrect command. Use /help for the list of commands.'
+MSG_NO_COMMAND='Use /help for the list of commands.'
+MSG_LIST='/show - Show your subscriptions\n/sub node - Subscribe\n/unsub node - Unsubscribe\n/unsuball - Remove all subscriptions\n/help - Show this message'
 MSG_OK = 'Ok.'
 
 @app.route('/testbot/hooks/%s/'%secret.token, methods=['POST'])
@@ -48,10 +49,10 @@ def hello_world():
         elif command == 'show':
             subs = subscriptions.get_subscriptions(chat_id)
             return_message = str([sub[2] for sub in subs])
-        elif command == 'list':
+        elif command == 'help':
             return_message = MSG_LIST
         else:
-            return_message = ''
+            return_message = MSG_INCORRECT_COMMAND 
     else:
         return_message = MSG_LIST 
 
@@ -61,10 +62,4 @@ def hello_world():
         'parse_mode':'markdown',
     }
 
-    #r = requests.post('https://api.telegram.org/bot%s/sendMessage'%secret.token, params=params)
-
     return jsonify(params) 
-
-@app.route('/testbot/test')
-def test():
-    return 'OK'
