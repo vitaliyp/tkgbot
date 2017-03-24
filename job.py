@@ -50,10 +50,6 @@ def run():
 
             comments = forum.get_new_comments_in_topic(topic['link'])
 
-            print(users)
-            print(comments)
-
-
             for user in users:
                 updates[user].append((topic, comments))
 
