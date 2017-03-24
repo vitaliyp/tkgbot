@@ -7,14 +7,14 @@ import requests
 
 import subscriptions
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 MSG_INCORRECT_COMMAND='Incorrect command. Use /help for the list of commands.'
 MSG_NO_COMMAND='Use /help for the list of commands.'
 MSG_LIST='/show - Show your subscriptions\n/sub node - Subscribe\n/unsub node - Unsubscribe\n/unsuball - Remove all subscriptions\n/help - Show this message'
 MSG_OK = 'Ok.'
 
-@app.route('/testbot/hooks/%s/'%secret.token, methods=['POST'])
+@application.route('/testbot/hooks/%s/'%secret.token, methods=['POST'])
 def hello_world():
     rjson = request.get_json();
     print(rjson)
