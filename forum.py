@@ -83,6 +83,10 @@ def get_updated_topics():
             total_count = int(count_strings[0])
         except ValueError:
             continue
+        new_comments_link_a = count_el.find('a')
+        if not new_comments_link_a:
+            continue
+        topic['new_comments_link'] = new_comments_link_a['href']
         topic['new_messages_count'] = new_count
         topic['messages_count'] = total_count
 
@@ -157,7 +161,7 @@ def _get_new_comments_on_page(soup):
     return comments
 
 def get_new_comments_in_topic(link):
-        page = session.get(''.join((ROOT_LINK, link, '#new')))
+        page = session.get(''.join((ROOT_LINK, link)))
         soup = BeautifulSoup(page.text, 'html.parser')
         comments = _get_new_comments_on_page(soup)
         return comments

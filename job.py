@@ -37,6 +37,15 @@ def send_message_new_comments(users):
         r = requests.post('https://api.telegram.org/bot%s/sendMessage'%secret.token, params=payload)
 
 def run():
+    print('Checking new comments')
+    payload = {
+            'chat_id': 229275810,
+            'text': '...',
+            'parse_mode': 'Markdown',
+            'disable_web_page_preview': True,
+            }
+    r = requests.post('https://api.telegram.org/bot%s/sendMessage'%secret.token, params=payload)
+
     # check forum for topics with new comments
     updated_topics = forum.get_updated_topics()
     # for every topic and it's section find subscribed users
@@ -48,7 +57,7 @@ def run():
                 users.update(subscriptions.get_subscribed_users(topic['section_node_id']))
             users.update(subscriptions.get_subscribed_users(0))
 
-            comments = forum.get_new_comments_in_topic(topic['link'])
+            comments = forum.get_new_comments_in_topic(topic['new_comments_link'])
 
             for user in users:
                 updates[user].append((topic, comments))
