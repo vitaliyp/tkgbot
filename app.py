@@ -20,6 +20,8 @@ def hello_world():
     print(rjson)
     if 'message' not in rjson:
         return ''
+    if 'text' not in rjson['message']:
+        return ''
 
     message = rjson['message']['text']
     chat_id = rjson['message']['chat']['id']
