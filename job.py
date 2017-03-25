@@ -37,18 +37,7 @@ def send_message_new_comments(users):
         r = requests.post('https://api.telegram.org/bot%s/sendMessage'%secret.token, params=payload)
 
 def run():
-    print('Checking new comments')
-    payload = {
-            'chat_id': 229275810,
-            'text': '...',
-            'parse_mode': 'Markdown',
-            'disable_web_page_preview': True,
-            }
-    r = requests.post('https://api.telegram.org/bot%s/sendMessage'%secret.token, params=payload)
-
-    # check forum for topics with new comments
     updated_topics = forum.get_updated_topics()
-    # for every topic and it's section find subscribed users
     updates = defaultdict(list) 
     for topic in updated_topics:
         if topic['new_messages_count']:
