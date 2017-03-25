@@ -157,14 +157,9 @@ def _get_new_comments_on_page(soup):
     return comments
 
 def get_new_comments_in_topic(link):
-        page = session.get(''.join((ROOT_LINK, link)))
+        page = session.get(''.join((ROOT_LINK, link, '#new')))
         soup = BeautifulSoup(page.text, 'html.parser')
-
-        other_links = _get_other_pages_links(soup)
-        soups = [BeautifulSoup(session.get(''.join((ROOT_LINK, link))).text, 'html.parser') for link in other_links]
-        soups.append(soup)
-
-        comments = [item for sublist in map(_get_new_comments_on_page, soups) for item in sublist]
+        comments = _get_new_comments_on_page(soup)
         return comments
 
 
