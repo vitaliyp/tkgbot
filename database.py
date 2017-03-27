@@ -2,7 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('sqlite:///data.sqlite3', echo=True)
+import settings
+
+
+engine = create_engine(settings.database_url, echo=settings.database_debug_output)
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
