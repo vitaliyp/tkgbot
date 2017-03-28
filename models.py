@@ -10,7 +10,8 @@ class NodeType(enum.Enum):
     MATERIAL = -2 
     EVENT = -3
     SECTION = -4
-    OTHER = -5
+    NEWS = -5
+    OTHER = -6
 
 
 class Subscription(Base):
