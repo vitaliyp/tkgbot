@@ -19,16 +19,15 @@ class Subscription(Base):
     chat_id = Column(Integer, nullable=False)
     node_id = Column(Integer, ForeignKey('nodes.id'), nullable=False)
     node = relationship('Node', back_populates='subscriptions')
-    top_level_only = Column(Boolean, nullable=False, default=False)
-    new_entries = Column(Boolean, nullable=False, default=True)
-    new_entries_only = Column(Boolean, nullable=False, default=False)
     exception = Column(Boolean, nullable=False, default=False)
+    no_comments = Column(Boolean, nullable=False, default=False)
+    no_replies = Column(Boolean, nullable=False, default=False)
 
     def __repr__(self):
-        return ('<Subscription(chat_id=%s, node_id=%s, top_level_only=%s, '
-                'new_entries=%s, new_entries_only=%s exception=%s)>'%(
-                self.chat_id, self.node_id, self.top_level_only, 
-                self.new_entries, self.exception, self.new_entries_only))
+        return ('<Subscription(chat_id=%s, node_id=%s, exception=%s, '
+                'no_comments=%s, no_replies=%s)>'%(
+                    self.chat_id, self.node_id, self.exception, 
+                self.no_comments, self.no_replies))
 
 
 class Node(Base):
@@ -41,5 +40,5 @@ class Node(Base):
     children = relationship('Node', backref=backref('parent', remote_side=[id]))
 
     def __repr__(self):
-        return '<Node(name=%s, last_checked=%s, parent_id=%)>'%(
+        return '<Node(name=%s, last_checked=%s, parent_id=%s)>'%(
                 self.name, self.last_checked, self.parent_id)
