@@ -50,7 +50,7 @@ def get_updated_topics():
         topic['type'] = {'Тема в форумі': NodeType.TOPIC,
                 'Матеріал': NodeType.MATERIAL,
                 'Подія': NodeType.EVENT,
-                'Новина': NodeType.NEWS}.get(typic_type_str, None)
+                'Новина': NodeType.NEWS}.get(topic_type_str, None)
         if not topic['type']:
             continue
 
