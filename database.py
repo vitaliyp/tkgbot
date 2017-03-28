@@ -7,10 +7,10 @@ import settings
 
 engine = create_engine(settings.database_url, echo=settings.database_debug_output)
 session_factory = sessionmaker(bind=engine)
-Session = scoped_session(session_factory)
+db_session = scoped_session(session_factory)
 
 Base = declarative_base()
-Base.query = Session.query_property()
+Base.query = db_session.query_property()
 
 def init_db():
     import models
