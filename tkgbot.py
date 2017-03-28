@@ -7,8 +7,6 @@ from database import db_session
 
 
 MSG_INCORRECT_COMMAND='Incorrect command. Use /help for the list of commands.'
-MSG_NO_COMMAND='Use /help for the list of commands.'
-MSG_LIST='/show - Show your subscriptions\n/sub node - Subscribe\n/unsub node - Unsubscribe\n/unsuball - Remove all subscriptions\n/help - Show this message'
 MSG_OK = 'Ok.'
 
 
@@ -44,7 +42,8 @@ def _parse_node_type(string):
     choices = {'all': NodeType.ALL,
             'topics': NodeType.TOPIC,
             'materials': NodeType.MATERIAL,
-            'events': NodeType.EVENT
+            'events': NodeType.EVENT,
+            'news': NodeType.NEWS
             }
     t = choices.get(string, None)
     return t.value if t else None 
@@ -58,6 +57,7 @@ def _command_sub(chat_id, args):
         `all` - all updates on forum
         `events` - events on forum
         `materials` - materials on forum
+        `news` - news
     Options:
         `no-comments` - show only notifications about new topics
         `no-replies` - show only top-level comments
@@ -115,6 +115,7 @@ def _command_sub(chat_id, args):
 
     return MSG_OK
 
+
 @command('help')
 def _command_help(chat_id, args):
     '''Show this help message.'''
@@ -167,6 +168,7 @@ def _command_unsuball(chat_id, args):
     db_session.commit()
     return MSG_OK
 
+
 @command('show')
 def _command_show(chat_id, args):
     '''Show your subscriptions'''
@@ -177,7 +179,8 @@ def _command_show(chat_id, args):
     node_strs = {NodeType.ALL: 'all',
             NodeType.MATERIAL: 'materials',
             NodeType.EVENT: 'events',
-            NodeType.TOPIC: 'topics'
+            NodeType.TOPIC: 'topics',
+            NodeType.NEWS: 'news',
             }
     for sub in subs:
         sub_list = []
@@ -211,8 +214,6 @@ def process_bot_request(data):
 
     message = data['message']['text']
     chat_id = data['message']['chat']['id']
-
-    return_message = ''
 
     message_list = message.split()
     if message[0].startswith('/'):
