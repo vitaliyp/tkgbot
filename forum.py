@@ -5,6 +5,8 @@ import re
 import datetime
 from itertools import chain
 
+from models import NodeType
+
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
 
@@ -43,7 +45,14 @@ def get_updated_topics():
     for mark in marks:
         tr = mark.find_parent('tr')
         topic = {}
-        topic['type'] = tr.find(class_='views-field-type').text.strip()
+
+        topic_type_str = tr.find(class_='views-field-type').text.strip()
+        topic['type'] = {'Тема в форумі': NodeType.TOPIC,
+                'Матеріал': NodeType.MATERIAL,
+                'Подія': NodeType.EVENT,
+                'Новина': NodeType.NEWS}.get(typic_type_str, None)
+        if not topic['type']:
+            continue
 
         title_a = tr.find(class_='views-field-title').a
         extracted_mark = title_a.mark.extract()
@@ -63,8 +72,6 @@ def get_updated_topics():
             topic['section_link'] = section_a['href']
 
             section_node_id = get_id_from_link(topic['section_link'])
-            if not section_node_id:
-                continue
             topic['section_node_id'] = section_node_id 
         else:
             topic['section_name'] = None
@@ -84,9 +91,7 @@ def get_updated_topics():
         except ValueError:
             continue
         new_comments_link_a = count_el.find('a')
-        if not new_comments_link_a:
-            continue
-        topic['new_comments_link'] = new_comments_link_a['href']
+        topic['new_comments_link'] = new_comments_link_a['href'] if new_comments_link_a else None
         topic['new_messages_count'] = new_count
         topic['messages_count'] = total_count
 
