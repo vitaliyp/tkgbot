@@ -1,7 +1,6 @@
 import sys
 import re
 
-import subscriptions
 from models import Subscription, Node, NodeType
 from database import db_session
 
