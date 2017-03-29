@@ -5,6 +5,8 @@ import re
 import datetime
 from itertools import chain
 
+from models import NodeType
+
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
 
@@ -36,14 +38,21 @@ def get_id_from_link(link):
 def get_updated_topics():
     topics = []
 
-    resp = session.get('http://www.tkg.org.ua/tracker')
+    resp = session.get('https://www.tkg.org.ua/tracker')
     soup = BeautifulSoup(resp.text, 'html.parser')
     tbody = soup.find(id='footable').tbody
     marks = tbody.find_all('mark')
     for mark in marks:
         tr = mark.find_parent('tr')
         topic = {}
-        topic['type'] = tr.find(class_='views-field-type').text.strip()
+
+        topic_type_str = tr.find(class_='views-field-type').text.strip()
+        topic['type'] = {'Тема в форумі': NodeType.TOPIC,
+                'Матеріал': NodeType.MATERIAL,
+                'Подія': NodeType.EVENT,
+                'Новина': NodeType.NEWS}.get(topic_type_str, None)
+        if not topic['type']:
+            continue
 
         title_a = tr.find(class_='views-field-title').a
         extracted_mark = title_a.mark.extract()
@@ -63,13 +72,28 @@ def get_updated_topics():
             topic['section_link'] = section_a['href']
 
             section_node_id = get_id_from_link(topic['section_link'])
-            if not section_node_id:
-                continue
             topic['section_node_id'] = section_node_id 
         else:
             topic['section_name'] = None
             topic['section_link'] = None
+            topic['section_node_id'] = None
 
+        count_el = tr.find('td', class_='views-field-comment-count')
+        count_strings = list(count_el.stripped_strings)
+        new_count = None
+        total_count = None
+        try:
+            if not count_strings or len(count_strings)>2:
+                continue
+            if len(count_strings)==2:
+                new_count = int(count_strings[1].split()[0])
+            total_count = int(count_strings[0])
+        except ValueError:
+            continue
+        new_comments_link_a = count_el.find('a')
+        topic['new_comments_link'] = new_comments_link_a['href'] if new_comments_link_a else None
+        topic['new_messages_count'] = new_count
+        topic['messages_count'] = total_count
 
         topics.append(topic)
     return topics
@@ -127,7 +151,7 @@ def _get_new_comments_on_page(soup):
         datetime = _parse_datetime(datetime_str)
         comment['date'] = datetime
 
-        comment_body_raw = comment_el.find('div', class_='field-item').find_all('p')[1]
+        comment_body_raw = comment_el.find('div', class_='field-item')
         comment_body = _parse_comment_body(comment_body_raw)
         comment['body'] = comment_body
 
@@ -144,12 +168,7 @@ def _get_new_comments_on_page(soup):
 def get_new_comments_in_topic(link):
         page = session.get(''.join((ROOT_LINK, link)))
         soup = BeautifulSoup(page.text, 'html.parser')
-
-        other_links = _get_other_pages_links(soup)
-        soups = [BeautifulSoup(session.get(''.join((ROOT_LINK, link))).text, 'html.parser') for link in other_links]
-        soups.append(soup)
-
-        comments = [item for sublist in map(_get_new_comments_on_page, soups) for item in sublist]
+        comments = _get_new_comments_on_page(soup)
         return comments
 
 
