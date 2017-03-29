@@ -38,7 +38,7 @@ def get_id_from_link(link):
 def get_updated_topics():
     topics = []
 
-    resp = session.get('http://www.tkg.org.ua/tracker')
+    resp = session.get('https://www.tkg.org.ua/tracker')
     soup = BeautifulSoup(resp.text, 'html.parser')
     tbody = soup.find(id='footable').tbody
     marks = tbody.find_all('mark')

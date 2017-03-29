@@ -41,5 +41,5 @@ class Node(Base):
     children = relationship('Node', backref=backref('parent', remote_side=[id]))
 
     def __repr__(self):
-        return '<Node(name=%s, last_checked=%s, parent_id=%s)>'%(
-                self.name, self.last_checked, self.parent_id)
+        return '<Node(id=%s, name=%s, last_checked=%s, parent_id=%s)>'%(
+                self.id, self.name, self.last_checked, self.parent_id)
