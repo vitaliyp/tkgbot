@@ -27,7 +27,8 @@ class NewCommentsMessageBuilder:
         l.extend(['[', topic['name'], '](', forum.ROOT_LINK, topic['link'], ')'])
         if topic['section_name']:
             l.extend((' - ', '[',
-                      topic['section_name'], '](', forum.ROOT_LINK,  topic['section_link'], ')\n'))
+                      topic['section_name'], '](', forum.ROOT_LINK,  topic['section_link'], ')'))
+        l.append('\n')
         return ''.join(l)
 
     def _construct_comment(self, comment):
