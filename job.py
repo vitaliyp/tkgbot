@@ -172,7 +172,7 @@ def run():
                     else:
                         sub_comments = comments
                     if sub_comments:
-                        updates_comments_new[chat_id].append((topic, sub_t gqcomments))
+                        updates_comments_new[chat_id].append((topic, sub_comments))
 
     send_message_new_topics(updates_topics_new)
     send_message_new_comments(updates_comments_new)
