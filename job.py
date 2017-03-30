@@ -168,7 +168,12 @@ def run():
                     updates_topics_new[chat_id].append(topic)
             if topic['new_comments_link'] and not subscription.no_comments:
                     comments = forum.get_new_comments_in_topic(topic['new_comments_link'])
-                    updates_comments_new[chat_id].append((topic, comments))
+                    if subscription.no_replies:
+                        sub_comments = [comment for comment in comments if not comment['is_reply']]
+                    else:
+                        sub_comments = comments
+                    if sub_comments:
+                        updates_comments_new[chat_id].append((topic, sub_t comments))
 
     send_message_new_topics(updates_topics_new)
     send_message_new_comments(updates_comments_new)

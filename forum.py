@@ -129,6 +129,9 @@ def _get_new_comments_on_page(soup):
     for mark in marks:
         comment = {}
         comment_el = mark.find_parent('article', class_='comment')
+
+        # Check if comment is a reply
+        comment['is_reply'] = bool(comment_el.find_parent('div', class_='indented'))
         
         header = comment_el.header
 
@@ -175,4 +178,5 @@ def get_new_comments_in_topic(link):
 _login()
 
 if __name__=='__main__':
+    get_new_comments_in_topic('/node/34669')
     pass
