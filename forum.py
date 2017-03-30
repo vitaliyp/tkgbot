@@ -178,5 +178,4 @@ def get_new_comments_in_topic(link):
 _login()
 
 if __name__=='__main__':
-    get_new_comments_in_topic('/node/34669')
     pass
