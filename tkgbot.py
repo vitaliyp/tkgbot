@@ -65,7 +65,7 @@ def _command_sub(chat_id, args):
         `/sub all`
         `/sub events except`
         `/sub 33044 except`
-        `/sub/21303`
+        `/sub 21303`
         `/sub tkg.org.ua/node/33044 no-comments`
         `/sub 33101 no-replies`'''
     args.reverse()
