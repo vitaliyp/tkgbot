@@ -163,11 +163,15 @@ def run():
             current_node = current_node.parent
         print(subscribed)
 
+        if topic['new_comments_link']:
+            comments = forum.get_new_comments_in_topic(topic['new_comments_link'])
+        else:
+            comments = []
+
         for chat_id, subscription in subscribed.items():
             if topic['status']=='new' and not last_checked:
                 updates_topics_new[chat_id].append(topic)
-            if topic['new_comments_link'] and not subscription.no_comments:
-                    comments = forum.get_new_comments_in_topic(topic['new_comments_link'])
+            if comments and not subscription.no_comments:
                     if subscription.no_replies:
                         sub_comments = [comment for comment in comments if not comment['is_reply']]
                     else:
