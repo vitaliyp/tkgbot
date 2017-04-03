@@ -13,7 +13,8 @@ ROOT_LINK = 'https://www.tkg.org.ua'
 session = requests.Session()
 
 def _check_loginned(soup):
-    return True
+    profile_link = soup.find('a', href='/user')
+    return bool(profile_link)
 
 def _login():
     data = {
