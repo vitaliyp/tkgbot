@@ -3,11 +3,13 @@ import re
 
 from models import Subscription, Node, NodeType
 from database import db_session
+from settings import translation
 
 
-MSG_INCORRECT_COMMAND='Incorrect command. Use /help for the list of commands.'
-MSG_OK = 'Ok.'
+_ = translation.gettext
 
+MSG_INCORRECT_COMMAND=_('Incorrect command. Use /help for the list of commands.')
+MSG_OK = _('Ok.')
 
 _commands = {}
 
@@ -49,7 +51,7 @@ def _parse_node_type(string):
     return t.value if t else None
 
 
-sub_help = ''' Subscribe
+sub_help = _(''' Subscribe
 Usage: `/sub [node] [except|no-comments|no-replies]`
 where node can be a link to forum topic or section or you can directly specify node id. Also you can use the next keywords:
     `all` - all updates on forum
@@ -66,7 +68,7 @@ Example:
     `/sub 33044 except`
     `/sub 21303`
     `/sub tkg.org.ua/node/33044 no-comments`
-    `/sub 33101 no-replies`'''
+    `/sub 33101 no-replies`''')
 
 
 @command('sub', sub_help)
@@ -118,7 +120,7 @@ def _command_sub(chat_id, args):
     return MSG_OK
 
 
-help_help = '''Show this help message.'''
+help_help = _('''Show this help message.''')
 
 
 @command('help', help_help)
@@ -144,7 +146,7 @@ def _command_help(chat_id, args):
     return  ''.join(str_list)
 
 
-unsub_help = '''Unsubscribe'''
+unsub_help = _('''Unsubscribe''')
 
 
 @command('unsub', unsub_help)
@@ -168,7 +170,7 @@ def _command_unsub(chat_id, args):
     return MSG_OK
 
 
-unsuball_help = '''Remove all subscriptions'''
+unsuball_help = _('''Remove all subscriptions''')
 
 
 @command('unsuball', unsuball_help)
@@ -178,14 +180,14 @@ def _command_unsuball(chat_id, args):
     return MSG_OK
 
 
-show_help = '''Show your subscriptions'''
+show_help = _('''Show your subscriptions''')
 
 
 @command('show', show_help)
 def _command_show(chat_id, args):
     subs = db_session.query(Subscription).filter_by(chat_id=chat_id).all()
     if not subs:
-        return 'You have no subscriptions'
+        return _('You have no subscriptions')
     msg_list = []
     node_strs = {NodeType.ALL: 'all',
             NodeType.MATERIAL: 'materials',

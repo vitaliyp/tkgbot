@@ -7,6 +7,10 @@ import secret
 import forum
 from models import Subscription, Node, NodeType
 from database import db_session
+from settings import translation
+
+
+_ = translation.gettext
 
 
 class NewCommentsMessageBuilder:
@@ -35,10 +39,10 @@ class NewCommentsMessageBuilder:
         l = []
         l.extend([
             '*',
-            comment['user_name'], ' wrote ', comment['date'].strftime('%d.%m.%y %H:%M'),
+            comment['user_name'], ' | ', comment['date'].strftime('%d.%m.%y %H:%M'),
             '*',
-            ' [link](', forum.ROOT_LINK, comment['link'], ') ',
-            '[reply](', forum.ROOT_LINK, comment['reply_link'], ') ',
+            ' [', _('link'), '](', forum.ROOT_LINK, comment['link'], ') ',
+            '[', _('reply'), '](', forum.ROOT_LINK, comment['reply_link'], ') ',
             '\n',
             comment['body'], '\n',
         ])
@@ -107,7 +111,7 @@ def send_message_new_comments(comment_updates):
 
 def send_message_new_topics(topic_updates):
     for user, updates in topic_updates.items():
-        msg_list = ['New topics:\n']
+        msg_list = [_('New topics:'),'\n']
         for topic in updates:
             msg_list.extend(['[', topic['name'], '](', forum.ROOT_LINK, topic['link'], ')'])
             if topic['section_name']:
