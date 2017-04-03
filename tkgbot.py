@@ -12,8 +12,9 @@ MSG_OK = 'Ok.'
 _commands = {}
 
 
-def command(command_name):
+def command(command_name, help_msg):
     def wrap(f):
+        f.help = help_msg
         _commands[command_name] = f
         def wrapped_f(chat_id, args=None):
             if not args:
@@ -45,29 +46,31 @@ def _parse_node_type(string):
             'news': NodeType.NEWS
             }
     t = choices.get(string, None)
-    return t.value if t else None 
+    return t.value if t else None
 
 
-@command('sub')
+sub_help = ''' Subscribe
+Usage: `/sub [node] [except|no-comments|no-replies]`
+where node can be a link to forum topic or section or you can directly specify node id. Also you can use the next keywords:
+    `all` - all updates on forum
+    `events` - events on forum
+    `materials` - materials on forum
+    `news` - news
+Options:
+    `no-comments` - show only notifications about new topics
+    `no-replies` - show only top-level comments
+    `except` - disable all notifications from this node
+Example:
+    `/sub all`
+    `/sub events except`
+    `/sub 33044 except`
+    `/sub 21303`
+    `/sub tkg.org.ua/node/33044 no-comments`
+    `/sub 33101 no-replies`'''
+
+
+@command('sub', sub_help)
 def _command_sub(chat_id, args):
-    ''' Subscribe
-    Usage: `/sub [node] [except|no-comments|no-replies]`
-    where node can be a link to forum topic or section or you can directly specify node id. Also you can use the next keywords:
-        `all` - all updates on forum
-        `events` - events on forum
-        `materials` - materials on forum
-        `news` - news
-    Options:
-        `no-comments` - show only notifications about new topics
-        `no-replies` - show only top-level comments
-        `except` - disable all notifications from this node
-    Example:
-        `/sub all`
-        `/sub events except`
-        `/sub 33044 except`
-        `/sub 21303`
-        `/sub tkg.org.ua/node/33044 no-comments`
-        `/sub 33101 no-replies`'''
     args.reverse()
     if args:
         arg = args.pop().lower()
@@ -115,14 +118,17 @@ def _command_sub(chat_id, args):
     return MSG_OK
 
 
-@command('help')
+help_help = '''Show this help message.'''
+
+
+@command('help', help_help)
 def _command_help(chat_id, args):
-    '''Show this help message.'''
     str_list = []
     for c_name, c in command.commands.items():
         str_list.extend(('/', c_name))
-        if c.__doc__:
-            lines = c.__doc__.expandtabs().splitlines()
+        help_msg = getattr(c, 'help', None)
+        if help_msg:
+            lines = help_msg.expandtabs().splitlines()
             # Corrent docsting indentation
             min_indent = sys.maxsize
             for line in lines[1:]:
@@ -135,12 +141,14 @@ def _command_help(chat_id, args):
                     trimmed.append(line[min_indent:].rstrip())
             str_list.extend((' - ', '\n'.join(trimmed)))
         str_list.append('\n')
-    return  ''.join(str_list) 
+    return  ''.join(str_list)
 
 
-@command('unsub')
+unsub_help = '''Unsubscribe'''
+
+
+@command('unsub', unsub_help)
 def _command_unsub(chat_id, args):
-    '''Unsubscribe'''
     args.reverse()
     if args:
         arg = args.pop().lower()
@@ -160,17 +168,21 @@ def _command_unsub(chat_id, args):
     return MSG_OK
 
 
-@command('unsuball')
+unsuball_help = '''Remove all subscriptions'''
+
+
+@command('unsuball', unsuball_help)
 def _command_unsuball(chat_id, args):
-    '''Remove all subscriptions'''
     db_session.query(Subscription).filter_by(chat_id=chat_id).delete()
     db_session.commit()
     return MSG_OK
 
 
-@command('show')
+show_help = '''Show your subscriptions'''
+
+
+@command('show', show_help)
 def _command_show(chat_id, args):
-    '''Show your subscriptions'''
     subs = db_session.query(Subscription).filter_by(chat_id=chat_id).all()
     if not subs:
         return 'You have no subscriptions'
