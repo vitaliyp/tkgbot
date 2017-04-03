@@ -46,6 +46,10 @@ def get_updated_topics():
 
     resp = session.get('https://www.tkg.org.ua/tracker')
     soup = BeautifulSoup(resp.text, 'html.parser')
+
+    if not _check_loginned(soup):
+        _login()
+
     tbody = soup.find(id='footable').tbody
     marks = tbody.find_all('mark')
     for mark in marks:
