@@ -66,7 +66,7 @@ def get_updated_topics():
 
         title_a = tr.find(class_='views-field-title').a
         extracted_mark = title_a.mark.extract()
-        topic['name'] = _escape_markdown(title_a.text.strip())
+        topic['name'] = title_a.text.strip()
         if extracted_mark['class'] and extracted_mark['class'][0] in ('updated', 'new'):
             topic['status'] = extracted_mark['class'][0]
         else:
@@ -78,7 +78,7 @@ def get_updated_topics():
         topic['node_id'] = node_id
         section_a = tr.find('td', class_='views-field-og-group-ref').a
         if section_a:
-            topic['section_name'] = _escape_markdown(section_a.text.strip())
+            topic['section_name'] = section_a.text.strip()
             topic['section_link'] = section_a['href']
 
             section_node_id = get_id_from_link(topic['section_link'])
@@ -135,7 +135,7 @@ def _parse_datetime(datetime_string):
 
 def _escape_markdown(text):
     result_text = text
-    for c in ['_', '*', '[', ']', '(', ')', '`']:
+    for c in ['_', '*', '[', ']', '`']:
         result_text = result_text.replace(c, '\\'+c)
     return result_text
 
@@ -166,7 +166,7 @@ def _get_new_comments_on_page(soup):
         submitted = header.find('p', class_='submitted')
         username_el = submitted.find(class_='username')
         user_name = username_el.text
-        comment['user_name'] = _escape_markdown(user_name)
+        comment['user_name'] = user_name
         if username_el.name == 'a':
             comment['anon'] = False
             comment['user_link'] = username_el['href']
