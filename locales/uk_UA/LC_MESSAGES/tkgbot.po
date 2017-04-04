@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-04-03 21:17+EEST\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: job.py:44
+msgid "link"
+msgstr "посилання"
+
+#: job.py:45
+msgid "reply"
+msgstr "відповісти"
+
+#: job.py:114
+msgid "New topics:"
+msgstr "Нові теми:"
+
+#: tkgbot.py:11
+msgid "Incorrect command. Use /help for the list of commands."
+msgstr "Невірна команда. Введіть /help, щоб подивитись список команд."
+
+#: tkgbot.py:12
+msgid "Ok."
+msgstr "Виконано."
+
+#: tkgbot.py:54
+msgid ""
+" Subscribe\n"
+"Usage: `/sub [node] [except|no-comments|no-replies]`\n"
+"where node can be a link to forum topic or section or you can directly specify node id. Also you can use the next keywords:\n"
+"    `all` - all updates on forum\n"
+"    `events` - events on forum\n"
+"    `materials` - materials on forum\n"
+"    `news` - news\n"
+"Options:\n"
+"    `no-comments` - show only notifications about new topics\n"
+"    `no-replies` - show only top-level comments\n"
+"    `except` - disable all notifications from this node\n"
+"Example:\n"
+"    `/sub all`\n"
+"    `/sub events except`\n"
+"    `/sub 33044 except`\n"
+"    `/sub 21303`\n"
+"    `/sub tkg.org.ua/node/33044 no-comments`\n"
+"    `/sub 33101 no-replies`"
+msgstr ""
+" Підписатись\n"
+"Використання: `/sub [node] [except|no-comments|no-replies]`\n"
+"де node може бути посиланням на тему, розділ, або ви можете безпосередньо вказати id. Також підтримуються наступні параметри:\n"
+"    `all` - всі оновлення на форумі\n"
+"    `events` - події\n"
+"    `materials` - матеріали\n"
+"    `news` - новини\n"
+"Додаткові параметри:\n"
+"    `no-comments` - не повідомляти про нові коментарі, а тільки про нові теми\n"
+"    `no-replies` - не повідомляти про відповіді, а тільки про коментарі верхнього рівня\n"
+"    `except` - виключити цю тему/розділ зі сповіщень\n"
+"Приклади:\n"
+"    `/sub all`\n"
+"    `/sub events except`\n"
+"    `/sub 33044 except`\n"
+"    `/sub 21303`\n"
+"    `/sub tkg.org.ua/node/33044 no-comments`\n"
+"    `/sub 33101 no-replies`"
+
+
+#: tkgbot.py:123
+msgid "Show this help message."
+msgstr "Показати цю довідку"
+
+#: tkgbot.py:149
+msgid "Unsubscribe"
+msgstr "Відписатись"
+
+#: tkgbot.py:173
+msgid "Remove all subscriptions"
+msgstr "Видалити всі підписки"
+
+#: tkgbot.py:183
+msgid "Show your subscriptions"
+msgstr "Показати підписки"
+
+#: tkgbot.py:190
+msgid "You have no subscriptions"
+msgstr "У вас немає підписок"
+
