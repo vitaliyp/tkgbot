@@ -44,8 +44,10 @@ class NewCommentsMessageBuilder:
             ' [', _('link'), '](', forum.ROOT_LINK, comment['link'], ') ',
             '[', _('reply'), '](', forum.ROOT_LINK, comment['reply_link'], ') ',
             '\n',
-            comment['body'], '\n',
         ])
+        if comment['subject']:
+            l.extend((comment['subject'].upper(), '\n'))
+        l.extend((comment['body'], '\n'))
         return ''.join(l)
 
     def _append(self, msg_part):

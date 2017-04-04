@@ -151,7 +151,7 @@ def _get_new_comments_on_page(soup):
 
         subj_a = header.find('a', class_='permalink')
         subject = subj_a.text
-        comment['subject'] = subj_a.text if subj_a.text != '.' else None
+        comment['subject'] = subj_a.text if subj_a.text not in ('.', '')  else None
         comment['link'] = subj_a['href']
 
         submitted = header.find('p', class_='submitted')
