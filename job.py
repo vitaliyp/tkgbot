@@ -42,7 +42,7 @@ class NewCommentsMessageBuilder:
             comment['user_name'], ' | ', comment['date'].strftime('%d.%m.%y %H:%M'),
             '*',
             ' [', _('link'), '](', forum.ROOT_LINK, comment['link'], ') ',
-            '[', _('reply'), '](', forum.ROOT_LINK, comment['reply_link'], ') ',
+            '[', _('reply'), '](', forum.ROOT_LINK, comment['reply_link'], ')',
             '\n',
         ])
         if comment['subject']:
