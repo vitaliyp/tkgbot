@@ -141,9 +141,7 @@ def send_message_new_topics(topic_updates):
     for user, updates in topic_updates.items():
         msg_list = [_('New topics:'), '\n']
         for topic in updates:
-            msg_list.extend(['[', topic['name'], '](', forum.ROOT_LINK, topic['link'], ')'])
-            if topic['section_name']:
-                msg_list.extend([' - [', topic['section_name'], '](', forum.ROOT_LINK, topic['section_link'], ')'])
+            msg_list.append(_construct_topic_header(topic))
             msg_list.append('\n')
         msg = ''.join(msg_list)
         send_message(user, msg)
