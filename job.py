@@ -58,7 +58,7 @@ def _construct_comment(comment):
         '\n',
     ])
     if comment['subject']:
-        l.extend((_escape_html_characters(comment['subject']).upper(), '\n'))
+        l.extend((_escape_html_characters(comment['subject'].upper()), '\n'))
     l.extend((_escape_html_characters(comment['body']), '\n'))
     return ''.join(l)
 
