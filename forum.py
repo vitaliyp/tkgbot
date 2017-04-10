@@ -133,17 +133,9 @@ def _parse_datetime(datetime_string):
     return datetime.datetime(data[0], data[1], data[2], data[3], data[4], data[5], tzinfo=tz)
 
 
-def _escape_markdown(text):
-    result_text = text
-    for c in ['_', '*', '[', ']', '`']:
-        result_text = result_text.replace(c, '\\'+c)
-    return result_text
-
-
 def _parse_comment_body(body):
     strings = body.stripped_strings
-    escaped_strings = [_escape_markdown(string) for string in strings]
-    return '\n'.join(escaped_strings)
+    return '\n'.join(strings)
 
 
 def _get_new_comments_on_page(soup):
