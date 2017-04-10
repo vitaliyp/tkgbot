@@ -1,10 +1,13 @@
 import unittest
 from job import NewCommentsMessageBuilder
+import job
 import datetime
 
-class TestCommentsMessageBuilder(unittest.TestCase):
 
+class TestCommentsMessageBuilder(unittest.TestCase):
     def test_simple_comment(self):
+        self.maxDiff = None
+
         builder = NewCommentsMessageBuilder(maxsize=1000)
         comment = {
             'body': 'Comment body',
@@ -25,12 +28,33 @@ class TestCommentsMessageBuilder(unittest.TestCase):
         result = builder.add_comment(topic, comment)
         self.assertIsNone(result)
         msg = builder.get_message()
-        expected_msg = ('[Topic_name](https://www.tkg.org.ua/node/123) - '
-                    '[Section_name](https://www.tkg.org.ua/node/345)\n'
-                    '*username | 02.03.17 01:23* [посилання](https://www.tkg.org.ua/comment_link) '
-                    '[відповісти](https://www.tkg.org.ua/reply_link)\n'
-                    'SUBJECT\n'
-                    'Comment body\n'
+        expected_msg = ('<a href="https://www.tkg.org.ua/node/123">Topic_name</a> - '
+                        '<a href="https://www.tkg.org.ua/node/345">Section_name</a>\n'
+                        '<strong>username | 02.03.17 01:23</strong> '
+                        '<a href="https://www.tkg.org.ua/comment_link">посилання</a> '
+                        '<a href="https://www.tkg.org.ua/reply_link">відповісти</a>\n'
+                        'SUBJECT\n'
+                        'Comment body\n'
                         )
 
         self.assertEquals(msg, expected_msg)
+
+
+class TestEscaping(unittest.TestCase):
+    def test_html_escaping(self):
+        self.assertEquals(job._escape_html_characters(''), '')
+        self.assertEquals(job._escape_html_characters('<'), '&lt;')
+        self.assertEquals(job._escape_html_characters('>'), '&gt;')
+        self.assertEquals(job._escape_html_characters('&'), '&amp;')
+        self.assertEquals(job._escape_html_characters('"'), '&quot;')
+        self.assertEquals(job._escape_html_characters('asd&as<strong>asd'),
+                          'asd&amp;as&lt;strong&gt;asd')
+
+
+class TestFormatting(unittest.TestCase):
+    def test_format_html_bold(self):
+        self.assertEquals(job._format_html_bold('test'), '<strong>test</strong>')
+
+    def test_format_html_link(self):
+        self.assertEquals(job._format_html_link('link', 'text'),
+                          '<a href="link">text</a>')

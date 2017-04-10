@@ -5,7 +5,6 @@ import forum
 
 
 class TestSesstion(unittest.TestCase):
-
     def test_check_login(self):
         with open('tests/data/tracker_logged_in.html', 'r') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')

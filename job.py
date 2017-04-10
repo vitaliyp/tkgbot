@@ -9,8 +9,58 @@ from models import Subscription, Node, NodeType
 from database import db_session
 from settings import translation
 
-
 _ = translation.gettext
+
+
+def _escape_html_characters(text: str):
+    result_text = text
+    result_text = result_text.replace('&', '&amp;')
+    result_text = result_text.replace('<', '&lt;')
+    result_text = result_text.replace('>', '&gt;')
+    result_text = result_text.replace('"', '&quot;')
+
+    return result_text
+
+
+def _format_html_bold(text: str) -> str:
+    return '<strong>' + text + '</strong>'
+
+
+def _format_html_link(link: str, text: str) -> str:
+    return '<a href="' + link + '">' + text + '</a>'
+
+
+def _construct_topic_header(topic):
+    l = []
+    l.extend((
+        _format_html_link(forum.ROOT_LINK + topic['link'], _escape_html_characters(topic['name'])),
+    ))
+    if topic['section_name']:
+        l.extend((
+            ' - ',
+            _format_html_link(forum.ROOT_LINK + topic['section_link'], _escape_html_characters(topic['section_name'])),
+        ))
+    l.append('\n')
+    return ''.join(l)
+
+
+def _construct_comment(comment):
+    l = []
+    l.extend([
+        _format_html_bold(_escape_html_characters(comment['user_name'])
+                          + ' | '
+                          + comment['date'].strftime('%d.%m.%y %H:%M'),
+                          ),
+        ' ',
+        _format_html_link(forum.ROOT_LINK + comment['link'], _('link')),
+        ' ',
+        _format_html_link(forum.ROOT_LINK + comment['reply_link'], _('reply')),
+        '\n',
+    ])
+    if comment['subject']:
+        l.extend((_escape_html_characters(comment['subject']).upper(), '\n'))
+    l.extend((_escape_html_characters(comment['body']), '\n'))
+    return ''.join(l)
 
 
 class NewCommentsMessageBuilder:
@@ -26,30 +76,6 @@ class NewCommentsMessageBuilder:
         self._current_topic = None
         self._current_header = None
 
-    def _construct_topic_header(self, topic):
-        l = []
-        l.extend(['[', topic['name'], '](', forum.ROOT_LINK, topic['link'], ')'])
-        if topic['section_name']:
-            l.extend((' - ', '[',
-                      topic['section_name'], '](', forum.ROOT_LINK,  topic['section_link'], ')'))
-        l.append('\n')
-        return ''.join(l)
-
-    def _construct_comment(self, comment):
-        l = []
-        l.extend([
-            '*',
-            comment['user_name'], ' | ', comment['date'].strftime('%d.%m.%y %H:%M'),
-            '*',
-            ' [', _('link'), '](', forum.ROOT_LINK, comment['link'], ') ',
-            '[', _('reply'), '](', forum.ROOT_LINK, comment['reply_link'], ')',
-            '\n',
-        ])
-        if comment['subject']:
-            l.extend((comment['subject'].upper(), '\n'))
-        l.extend((comment['body'], '\n'))
-        return ''.join(l)
-
     def _append(self, msg_part):
         self._list.append(msg_part)
         self._size += len(msg_part)
@@ -61,25 +87,25 @@ class NewCommentsMessageBuilder:
 
     def add_comment(self, topic, comment):
         if self._current_topic is not topic or not self._current_header:
-            self._current_header = self._construct_topic_header(topic)
+            self._current_header = _construct_topic_header(topic)
             self._current_topic = topic
             self._current_topic_has_comments = False
 
         header_str = self._current_header if not self._current_topic_has_comments else ''
         blanks_before_header = '\n\n' if header_str and self._has_topics else ''
         blanks_before_comment = '\n' if self._current_topic_has_comments else ''
-        comment_str = self._construct_comment(comment)
+        comment_str = _construct_comment(comment)
 
         msg_part = ''.join([blanks_before_header, header_str, blanks_before_comment, comment_str])
 
-        if self._size+len(msg_part)<self._maxsize:
+        if self._size + len(msg_part) < self._maxsize:
             self._append(msg_part)
             self._current_topic_has_comments = True
             self._has_topics = True
             return None
         else:
-            if len(msg_part)>=self._maxsize:
-                msg_part = msg_part[:self._maxsize-3]+'...'
+            if len(msg_part) >= self._maxsize:
+                msg_part = msg_part[:self._maxsize - 3] + '...'
             msg = self.get_message()
             self._list = []
             self._size = 0
@@ -90,11 +116,11 @@ class NewCommentsMessageBuilder:
 
 def send_message(chat_id, text):
     payload = {
-            'chat_id': chat_id,
-            'text': text,
-            'parse_mode': 'Markdown',
-            'disable_web_page_preview': True,
-            }
+        'chat_id': chat_id,
+        'text': text,
+        'parse_mode': 'HTML',
+        'disable_web_page_preview': True,
+    }
     r = requests.post('https://api.telegram.org/bot%s/sendMessage' % secret.token, params=payload)
 
 
@@ -113,7 +139,7 @@ def send_message_new_comments(comment_updates):
 
 def send_message_new_topics(topic_updates):
     for user, updates in topic_updates.items():
-        msg_list = [_('New topics:'),'\n']
+        msg_list = [_('New topics:'), '\n']
         for topic in updates:
             msg_list.extend(['[', topic['name'], '](', forum.ROOT_LINK, topic['link'], ')'])
             if topic['section_name']:
@@ -135,7 +161,7 @@ def run():
             node = Node(id=topic['node_id'], name=topic['name'])
             db_session.add(node)
         node.name = topic['name']
-        #find parent of this node
+        # find parent of this node
         parent_node = node.parent
         if not parent_node:
             if topic['section_node_id']:
@@ -175,19 +201,19 @@ def run():
             comments = []
 
         for chat_id, subscription in subscribed.items():
-            if topic['status']=='new' and not last_checked:
+            if topic['status'] == 'new' and not last_checked:
                 updates_topics_new[chat_id].append(topic)
             if comments and not subscription.no_comments:
-                    if subscription.no_replies:
-                        sub_comments = [comment for comment in comments if not comment['is_reply']]
-                    else:
-                        sub_comments = comments
-                    if sub_comments:
-                        updates_comments_new[chat_id].append((topic, sub_comments))
+                if subscription.no_replies:
+                    sub_comments = [comment for comment in comments if not comment['is_reply']]
+                else:
+                    sub_comments = comments
+                if sub_comments:
+                    updates_comments_new[chat_id].append((topic, sub_comments))
 
     send_message_new_topics(updates_topics_new)
     send_message_new_comments(updates_comments_new)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     run()
