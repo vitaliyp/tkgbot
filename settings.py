@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 translation = gettext.translation('tkgbot', './locales', languages=['uk'])
 
-database_url = 'sqlite:///data.sqlite3'
+database_url = 'sqlite:///data/data.sqlite3'
 
 debug = True
 database_debug_output = debug

@@ -1,8 +1,12 @@
 FROM python:3.6.3-alpine
 
-COPY . /tkgbot
+COPY Pipfile* /tkgbot/
 WORKDIR /tkgbot
 
 RUN pip install pipenv && pipenv install
 
-CMD ["pipenv", "run", "python", "app.py"]
+COPY . /tkgbot
+
+RUN mkdir data; pipenv run python -c "import database; database.init_db()"
+
+ENTRYPOINT ["pipenv", "run", "python", "app.py"]
