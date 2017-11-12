@@ -1,20 +1,36 @@
-from flask import Flask
-from flask import request, jsonify
+import asyncio
+import concurrent
+import logging
 
-from database import db_session
-import tkgbot
+import job
 import settings
+import tkgbot
+import telegram
 
 
-application = Flask(__name__)
+async def worker():
+    while True:
+        messages = await telegram.get_messages()
+        for message in messages:
+            response = tkgbot.process_bot_request(message)
+            await telegram.respond(response)
 
 
-@application.route(settings.webhook_url, methods=['POST'])
-def bot():
-    data = request.get_json()
-    response_data = tkgbot.process_bot_request(data)
-    return jsonify(response_data) 
+async def forum_check_scheduler():
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.THREAD_POOL_EXECUTOR_MAX_WORKERS)
+    loop = asyncio.get_event_loop()
+    while True:
+        logger = logging.getLogger(__name__+'.forum_check_scheduler')
+        logger.info('Checking forum for updates.')
+        await loop.run_in_executor(executor, job.run)
+        await asyncio.sleep(settings.FORUM_CHECK_INTERVAL)
 
-@application.teardown_appcontext
-def shutdown_session(exception=None):
-    db_session.remove()
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.gather(
+        worker(),
+        forum_check_scheduler()
+    ))
+    logger.info('Tearing down the application.')

@@ -2,9 +2,11 @@ import sys
 import re
 
 from models import Subscription, Node, NodeType
-from database import db_session
+import database
 from settings import translation
 
+
+db_session = database.get_db_session()
 
 _ = translation.gettext
 
@@ -219,27 +221,25 @@ def _command_default(chat_id, args):
     return MSG_INCORRECT_COMMAND
 
 
-def process_bot_request(data):
-    if 'message' not in data:
-        return ''
-    if 'text' not in data['message']:
+def process_bot_request(message):
+    if 'text' not in message:
         return ''
 
-    message = data['message']['text']
-    chat_id = data['message']['chat']['id']
+    message_text = message['text']
+    chat_id = message['chat']['id']
 
-    message_list = message.split()
-    if message[0].startswith('/'):
+    message_list = message_text.split()
+    if message_list[0].startswith('/'):
         command = message_list[0][1:]
         args = message_list[1:]
         return_message = _commands.get(command, _command_default)(chat_id, args)
     else:
         return_message = _command_help(chat_id, []) 
 
-    params = {'chat_id': chat_id,
+    params = {
+        'chat_id': chat_id,
         'text': return_message,
-        'method': 'sendMessage',
-        'parse_mode':'markdown',
+        'parse_mode': 'markdown',
     }
 
     return params

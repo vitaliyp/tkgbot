@@ -3,10 +3,11 @@ from collections import defaultdict
 import datetime
 import requests
 
+import database
 import secret
 import forum
 from models import Subscription, Node, NodeType
-from database import db_session
+import database
 from settings import translation
 
 _ = translation.gettext
@@ -148,7 +149,9 @@ def send_message_new_topics(topic_updates):
 
 
 def run():
-    import pickle
+    db_session = database.get_db_session()
+    database.Base.query = db_session.query_property()
+
     updates_comments_new = defaultdict(list)
     updates_topics_new = defaultdict(list)
     updated_topics = forum.get_updated_topics()
@@ -208,6 +211,8 @@ def run():
                     sub_comments = comments
                 if sub_comments:
                     updates_comments_new[chat_id].append((topic, sub_comments))
+
+    db_session.remove()
 
     send_message_new_topics(updates_topics_new)
     send_message_new_comments(updates_comments_new)

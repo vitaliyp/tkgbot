@@ -5,14 +5,19 @@ from sqlalchemy.ext.declarative import declarative_base
 import settings
 
 engine = create_engine(settings.database_url, echo=settings.database_debug_output)
-session_factory = sessionmaker(bind=engine)
-db_session = scoped_session(session_factory)
 
 Base = declarative_base()
-Base.query = db_session.query_property()
+
+
+def get_db_session():
+    session_factory = sessionmaker(bind=engine)
+    db_session = scoped_session(session_factory)
+    return db_session
+
 
 def init_db():
     import models
+    db_session = get_db_session()
     Base.metadata.create_all(bind=engine)
     node_all = models.Node(id=models.NodeType.ALL.value)
     node_materials = models.Node(id=models.NodeType.MATERIAL.value, parent=node_all)
