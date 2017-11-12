@@ -1,6 +1,4 @@
 __pycache__
-secret.py
 temp/
-*.swp
 *.pyc
 *.db
