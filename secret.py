@@ -1,6 +1,6 @@
 import os
 
-token = '287208453:AAEnd8JoQtGZcTvheK2_RoTrTmKE4IOrYeQ'
+token = os.getenv("TELEGRAM_BOT_TOKEN", '')
 forum = {
     'login': os.getenv('FORUM_LOGIN', ''),
     'password': os.getenv('FORUM_PASSWORD', '')
