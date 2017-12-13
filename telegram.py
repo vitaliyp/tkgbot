@@ -46,7 +46,7 @@ async def get_messages():
         while True:
             updates = await get_updates(session)
             if updates:
-                messages = [update['message'] for update in updates]
+                messages = [update['message'] for update in updates if 'message' in update]
                 return messages
 
 
