@@ -3,6 +3,8 @@ import gettext
 import secret
 
 
+PERSISTENCE_FILE = 'data.shelf'
+
 translation = gettext.translation('tkgbot', './locales', languages=['uk'])
 
 webhook_url = '/tkgbot/hooks/%s/'%secret.token

@@ -1,17 +1,19 @@
 import re
 import datetime
+import shelve
 
 from bs4 import BeautifulSoup
 import requests
 
 import secret
+import settings
 from models import NodeType
 
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
 
-session = requests.Session()
-
+with shelve.open(settings.PERSISTENCE_FILE) as db:
+    session = db['session'] if 'session' in db else requests.Session()
 
 def _check_loginned(soup):
     profile_link = soup.find('a', href='/user')
@@ -26,6 +28,9 @@ def _login():
     }
     session.post('https://www.tkg.org.ua/user',
                  data=data, allow_redirects=False)
+
+    with shelve.open(settings.PERSISTENCE_FILE) as db:
+        db['session'] = session
 
 
 def visit_topic(link):
