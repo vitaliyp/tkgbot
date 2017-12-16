@@ -1,0 +1,17 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+"beautifulsoup4" = "==4.5.3"
+Flask = "==0.12"
+requests = "==2.13.0"
+SQLAlchemy = "==1.1.6"
+
+
+[dev-packages]
+
