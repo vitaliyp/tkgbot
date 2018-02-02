@@ -174,7 +174,7 @@ def _get_new_comments_on_page(soup):
         datetime = _parse_datetime(datetime_str)
         comment['date'] = datetime
 
-        comment_body_raw = comment_el.find('div', class_='field-item')
+        comment_body_raw = comment_el.find('div', class_='field-name-comment-body').find('div', class_='field-item')
         comment_body = _parse_comment_body(comment_body_raw)
         comment['body'] = comment_body
 
