@@ -13,7 +13,8 @@ async def worker():
         messages = await telegram.get_messages()
         for message in messages:
             response = tkgbot.process_bot_request(message)
-            await telegram.respond(response)
+            if response:
+                await telegram.respond(response)
 
 
 async def forum_check_scheduler():

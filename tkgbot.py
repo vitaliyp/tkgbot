@@ -223,7 +223,7 @@ def _command_default(chat_id, args):
 
 def process_bot_request(message):
     if 'text' not in message:
-        return ''
+        return None
 
     message_text = message['text']
     chat_id = message['chat']['id']
@@ -236,11 +236,11 @@ def process_bot_request(message):
     else:
         return_message = _command_help(chat_id, []) 
 
-    params = {
+    response = {
         'chat_id': chat_id,
         'text': return_message,
         'parse_mode': 'markdown',
     }
 
-    return params
+    return response
 

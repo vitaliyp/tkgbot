@@ -7,6 +7,7 @@ import secret
 
 api_base_url = f'https://api.telegram.org/bot{secret.token}/'
 
+
 async def remove_webhook():
     logger = logging.getLogger(__name__+'.remove_webhook')
     logger.info(f'Removing webhook.')
@@ -52,8 +53,9 @@ async def get_messages():
 
 async def respond(response):
     logger = logging.getLogger(__name__+'.respond')
-    if not response['text']:
+    if 'text' not in response:
         return
+
     with client.ClientSession() as session:
         logger.debug(f'Sending message {response}')
         data = response
