@@ -37,8 +37,10 @@ async def get_updates(session):
     logger.debug(f'Received updates from server {response_data}')
 
     if response_data['ok']:
-        offset = response_data['result'][-1]['update_id']+1
+        if response_data['result']:
+            offset = response_data['result'][-1]['update_id']+1
         return response_data['result']
+
     return []
 
 
