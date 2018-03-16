@@ -4,15 +4,17 @@ import logging
 
 import job
 import settings
-import tkgbot
 import telegram
+from tkgbot import TkgBot
 
 
 async def worker():
+    bot = TkgBot()
+
     while True:
         messages = await telegram.get_messages()
         for message in messages:
-            response = tkgbot.process_bot_request(message)
+            response = bot.process_request(message)
             if response:
                 await telegram.respond(response)
 
