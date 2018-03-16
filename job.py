@@ -149,8 +149,9 @@ def send_message_new_topics(topic_updates):
 
 
 def run():
-    db_session = database.get_db_session()
-    database.Base.query = db_session.query_property()
+    Session = database.get_db_session()
+    session = Session()
+    database.Base.query = Session.query_property()
 
     updates_comments_new = defaultdict(list)
     updates_topics_new = defaultdict(list)
@@ -160,7 +161,7 @@ def run():
         node = Node.query.filter_by(id=topic['node_id']).first()
         if not node:
             node = Node(id=topic['node_id'], name=topic['name'])
-            db_session.add(node)
+            session.add(node)
         node.name = topic['name']
         # find parent of this node
         parent_node = node.parent
@@ -180,7 +181,7 @@ def run():
             node.parent = parent_node
         last_checked = node.last_checked
         node.last_checked = datetime.datetime.now()
-        db_session.commit()
+        session.commit()
 
         current_node = node
         excepted = set()
@@ -212,7 +213,7 @@ def run():
                 if sub_comments:
                     updates_comments_new[chat_id].append((topic, sub_comments))
 
-    db_session.remove()
+    Session.remove()
 
     send_message_new_topics(updates_topics_new)
     send_message_new_comments(updates_comments_new)
