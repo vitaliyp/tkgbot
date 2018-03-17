@@ -8,22 +8,28 @@ import telegram
 from tkgbot import TkgBot
 
 
+logger = logging.getLogger(__name__)
+
+
 async def worker():
     bot = TkgBot()
 
     while True:
-        messages = await telegram.get_messages()
-        for message in messages:
-            response = bot.process_request(message)
-            if response:
-                await telegram.respond(response)
+        try:
+            messages = await telegram.get_messages()
+            for message in messages:
+                response = bot.process_request(message)
+                if response:
+                    await telegram.respond(response)
+        except telegram.TelegramError:
+            logger.warning(f'Error while getting messages from telegram', exc_info=True)
+            await asyncio.sleep(5)
 
 
 async def forum_check_scheduler():
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.THREAD_POOL_EXECUTOR_MAX_WORKERS)
     loop = asyncio.get_event_loop()
     while True:
-        logger = logging.getLogger(__name__+'.forum_check_scheduler')
         logger.info('Checking forum for updates.')
         await loop.run_in_executor(executor, job.run)
         await asyncio.sleep(settings.FORUM_CHECK_INTERVAL)
