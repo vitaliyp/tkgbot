@@ -1,5 +1,5 @@
 import unittest
-from job import NewCommentsMessageBuilder
+from message_builder import NewCommentsMessageBuilder
 import job
 import datetime
 
@@ -42,19 +42,19 @@ class TestCommentsMessageBuilder(unittest.TestCase):
 
 class TestEscaping(unittest.TestCase):
     def test_html_escaping(self):
-        self.assertEquals(job._escape_html_characters(''), '')
-        self.assertEquals(job._escape_html_characters('<'), '&lt;')
-        self.assertEquals(job._escape_html_characters('>'), '&gt;')
-        self.assertEquals(job._escape_html_characters('&'), '&amp;')
-        self.assertEquals(job._escape_html_characters('"'), '&quot;')
-        self.assertEquals(job._escape_html_characters('asd&as<strong>asd'),
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters(''), '')
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('<'), '&lt;')
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('>'), '&gt;')
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('&'), '&amp;')
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('"'), '&quot;')
+        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('asd&as<strong>asd'),
                           'asd&amp;as&lt;strong&gt;asd')
 
 
 class TestFormatting(unittest.TestCase):
     def test_format_html_bold(self):
-        self.assertEquals(job._format_html_bold('test'), '<strong>test</strong>')
+        self.assertEquals(NewCommentsMessageBuilder._format_html_bold('test'), '<strong>test</strong>')
 
     def test_format_html_link(self):
-        self.assertEquals(job._format_html_link('link', 'text'),
+        self.assertEquals(NewCommentsMessageBuilder._format_html_link('link', 'text'),
                           '<a href="link">text</a>')

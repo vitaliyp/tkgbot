@@ -3,116 +3,14 @@ from collections import defaultdict
 import datetime
 import requests
 
-import database
 import secret
 import forum
-from models import Subscription, Node, NodeType
+from message_builder import NewCommentsMessageBuilder
+from models import Node, NodeType
 import database
 from settings import translation
 
 _ = translation.gettext
-
-
-def _escape_html_characters(text: str):
-    result_text = text
-    result_text = result_text.replace('&', '&amp;')
-    result_text = result_text.replace('<', '&lt;')
-    result_text = result_text.replace('>', '&gt;')
-    result_text = result_text.replace('"', '&quot;')
-
-    return result_text
-
-
-def _format_html_bold(text: str) -> str:
-    return '<strong>' + text + '</strong>'
-
-
-def _format_html_link(link: str, text: str) -> str:
-    return '<a href="' + link + '">' + text + '</a>'
-
-
-def _construct_topic_header(topic):
-    l = []
-    l.extend((
-        _format_html_link(forum.ROOT_LINK + topic['link'], _escape_html_characters(topic['name'])),
-    ))
-    if topic['section_name']:
-        l.extend((
-            ' - ',
-            _format_html_link(forum.ROOT_LINK + topic['section_link'], _escape_html_characters(topic['section_name'])),
-        ))
-    l.append('\n')
-    return ''.join(l)
-
-
-def _construct_comment(comment):
-    l = []
-    l.extend([
-        _format_html_bold(_escape_html_characters(comment['user_name'])
-                          + ' | '
-                          + comment['date'].strftime('%d.%m.%y %H:%M'),
-                          ),
-        ' ',
-        _format_html_link(forum.ROOT_LINK + comment['link'], _('link')),
-        ' ',
-        _format_html_link(forum.ROOT_LINK + comment['reply_link'], _('reply')),
-        '\n',
-    ])
-    if comment['subject']:
-        l.extend((_escape_html_characters(comment['subject'].upper()), '\n'))
-    l.extend((_escape_html_characters(comment['body']), '\n'))
-    return ''.join(l)
-
-
-class NewCommentsMessageBuilder:
-    def __init__(self, maxsize):
-        self._maxsize = maxsize
-        self._reset()
-
-    def _reset(self):
-        self._list = []
-        self._size = 0
-        self._has_topics = False
-        self._current_topic_has_comments = False
-        self._current_topic = None
-        self._current_header = None
-
-    def _append(self, msg_part):
-        self._list.append(msg_part)
-        self._size += len(msg_part)
-
-    def get_message(self):
-        if self._size:
-            return ''.join(self._list)
-        return None
-
-    def add_comment(self, topic, comment):
-        if self._current_topic is not topic or not self._current_header:
-            self._current_header = _construct_topic_header(topic)
-            self._current_topic = topic
-            self._current_topic_has_comments = False
-
-        header_str = self._current_header if not self._current_topic_has_comments else ''
-        blanks_before_header = '\n\n' if header_str and self._has_topics else ''
-        blanks_before_comment = '\n' if self._current_topic_has_comments else ''
-        comment_str = _construct_comment(comment)
-
-        msg_part = ''.join([blanks_before_header, header_str, blanks_before_comment, comment_str])
-
-        if self._size + len(msg_part) < self._maxsize:
-            self._append(msg_part)
-            self._current_topic_has_comments = True
-            self._has_topics = True
-            return None
-        else:
-            if len(msg_part) >= self._maxsize:
-                msg_part = msg_part[:self._maxsize - 3] + '...'
-            msg = self.get_message()
-            self._list = []
-            self._size = 0
-            self._append(msg_part)
-            self._current_topic_has_comments = True
-            return msg
 
 
 def send_message(chat_id, text):
@@ -142,7 +40,7 @@ def send_message_new_topics(topic_updates):
     for user, updates in topic_updates.items():
         msg_list = [_('New topics:'), '\n']
         for topic in updates:
-            msg_list.append(_construct_topic_header(topic))
+            msg_list.append(NewCommentsMessageBuilder._construct_topic_header(topic))
             msg_list.append('\n')
         msg = ''.join(msg_list)
         send_message(user, msg)
