@@ -7,13 +7,14 @@ verify_ssl = true
 
 [dev-packages]
 
+pytest = "*"
 
 
 [packages]
 
 "beautifulsoup4" = "==4.5.3"
 requests = "==2.13.0"
-SQLAlchemy = "==1.1.6"
+sqlalchemy = "==1.1.6"
 aiohttp = "*"
 
 
