@@ -59,7 +59,7 @@ async def get_updates(session):
 
 
 async def get_messages():
-    with client.ClientSession() as session:
+    async with client.ClientSession() as session:
         while True:
             updates = await get_updates(session)
             if updates:
@@ -71,7 +71,7 @@ async def respond(response):
     if 'text' not in response:
         return
 
-    with client.ClientSession() as session:
+    async with client.ClientSession() as session:
         logger.debug(f'Sending message {response}')
         data = response
         async with session.post(api_base_url+'sendMessage', data=data) as response:
