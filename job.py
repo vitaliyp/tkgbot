@@ -72,10 +72,10 @@ def run():
                                        name=topic['section_name'])
                 parent_node.name = topic['section_name']
             else:
-                if topic['type'] in [NodeType.EVENT, NodeType.NEWS, NodeType.MATERIAL]:
-                    parent_node = Node.query.filter_by(id=topic['type'].value).one()
-                else:
+                parent_node = Node.query.filter_by(id=topic['type'].value).first()
+                if not parent_node:
                     raise Exception('Cannot find parent for node')
+
             node.parent = parent_node
         last_checked = node.last_checked
         node.last_checked = datetime.datetime.now()
