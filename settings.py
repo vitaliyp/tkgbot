@@ -1,6 +1,8 @@
 import gettext
 import logging
 
+import secret
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -11,7 +13,8 @@ database_url = 'sqlite:///data/data.sqlite3'
 debug = True
 database_debug_output = debug
 
-POLLING_TIMEOUT = 300
-FORUM_CHECK_INTERVAL = 60
+telegram_api_url = f'https://api.telegram.org/bot{secret.token}/'
+polling_timeout = 300
+forum_check_interval = 60
 
-THREAD_POOL_EXECUTOR_MAX_WORKERS = 3
+thread_pool_executor_max_workers = 3

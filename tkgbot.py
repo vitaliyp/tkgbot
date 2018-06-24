@@ -3,11 +3,8 @@ import re
 
 from bot import BotError, BotCommand, Bot
 from models import Subscription, Node, NodeType
-import database
 from settings import translation
 
-
-db_session = database.get_db_session()
 
 _ = translation.gettext
 

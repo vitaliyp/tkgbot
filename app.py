@@ -27,12 +27,12 @@ async def worker():
 
 
 async def forum_check_scheduler():
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.THREAD_POOL_EXECUTOR_MAX_WORKERS)
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.thread_pool_executor_max_workers)
     loop = asyncio.get_event_loop()
     while True:
         logger.info('Checking forum for updates.')
         await loop.run_in_executor(executor, job.run)
-        await asyncio.sleep(settings.FORUM_CHECK_INTERVAL)
+        await asyncio.sleep(settings.forum_check_interval)
 
 
 if __name__ == '__main__':

@@ -4,10 +4,7 @@ import aiohttp
 from aiohttp import client
 
 import settings
-import secret
-
-api_base_url = f'https://api.telegram.org/bot{secret.token}/'
-
+from settings import telegram_api_url
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +17,7 @@ async def remove_webhook():
     logger.info(f'Removing webhook.')
     async with client.ClientSession() as session:
         request_data = {'url': ''}
-        response = await session.post(api_base_url+'deleteWebhook', data=request_data)
+        response = await session.post(telegram_api_url + 'deleteWebhook', data=request_data)
         response_data = await response.json()
         logger.debug(f'delete Webhook return result: {response_data}')
         if response_data['ok']:
@@ -35,11 +32,11 @@ async def get_updates(session):
     global offset
 
     request_data = {
-        'timeout': settings.POLLING_TIMEOUT,
+        'timeout': settings.polling_timeout,
         'offset': offset,
     }
     try:
-        response = await session.post(api_base_url+'getUpdates', data=request_data)
+        response = await session.post(telegram_api_url + 'getUpdates', data=request_data)
         response_data = await response.json()
     except aiohttp.client_exceptions.ClientError as error:
         raise TelegramError from error
@@ -74,6 +71,6 @@ async def respond(response):
     async with client.ClientSession() as session:
         logger.debug(f'Sending message {response}')
         data = response
-        async with session.post(api_base_url+'sendMessage', data=data) as response:
+        async with session.post(telegram_api_url + 'sendMessage', data=data) as response:
             response_data = await response.json()
             logger.debug(f'Response from server: {response_data}')

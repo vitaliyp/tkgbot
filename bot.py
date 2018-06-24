@@ -32,30 +32,31 @@ class Bot:
         if 'text' not in message:
             return None
 
-        self.session = database.get_db_session()()
+        with database.session_scope() as session:
+            self.session = session
 
-        message_text = message['text']
-        chat_id = message['chat']['id']
+            message_text = message['text']
+            chat_id = message['chat']['id']
 
-        message_list = message_text.split()
-        if message_list[0].startswith('/'):
-            command_name = message_list[0][1:]
-            command = self._find_command(command_name)
-            args = message_list[1:]
-            if command:
-                return_message = command(chat_id, args)
+            message_list = message_text.split()
+            if message_list[0].startswith('/'):
+                command_name = message_list[0][1:]
+                command = self._find_command(command_name)
+                args = message_list[1:]
+                if command:
+                    return_message = command(chat_id, args)
+                else:
+                    return None
             else:
-                return None
-        else:
-            return_message = self.default_command(chat_id, [])
+                return_message = self.default_command(chat_id, [])
 
-        response = {
-            'chat_id': chat_id,
-            'text': return_message,
-            'parse_mode': 'markdown',
-        }
+            response = {
+                'chat_id': chat_id,
+                'text': return_message,
+                'parse_mode': 'markdown',
+            }
 
-        self.session.close()
+            self.session = None
 
         return response
 
