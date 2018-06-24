@@ -45,6 +45,49 @@ def send_message_new_topics(topic_updates):
         send_message(user, msg)
 
 
+def _get_subscriptions(node):
+    current_node = node
+    excepted = set()
+    subscribed = {}
+    while current_node:
+        subscriptions = current_node.subscriptions
+        for s in subscriptions:
+            if s.exception:
+                excepted.add(s.chat_id)
+            else:
+                if s.chat_id not in excepted and s.chat_id not in subscribed:
+                    subscribed[s.chat_id] = s
+
+        current_node = current_node.parent
+    return subscribed
+
+
+def _get_or_create_topic_node(session, topic):
+    node = session.query(Node).filter_by(id=topic['node_id']).first()
+    if not node:
+        node = Node(id=topic['node_id'], name=topic['name'])
+        session.add(node)
+    return node
+
+
+def _get_or_create_parent_node(node, session, topic):
+    parent_node = node.parent
+    if not parent_node:
+        if topic['section_node_id']:
+            parent_node = session.query(Node).filter_by(id=topic['section_node_id']).first()
+            if not parent_node:
+                parent_node = Node(id=topic['section_node_id'],
+                                   parent_id=NodeType.SECTION.value,
+                                   name=topic['section_name'])
+            parent_node.name = topic['section_name']
+        else:
+            parent_node = session.query(Node).filter_by(id=topic['type'].value).first()
+            if not parent_node:
+                raise Exception('Cannot find parent for node')
+
+    return parent_node
+
+
 def run():
     with session_scope() as session:
         updates_comments_new = defaultdict(list)
@@ -52,43 +95,18 @@ def run():
         updated_topics = forum.get_updated_topics()
         for topic in updated_topics:
             # Find or create node for this topic
-            node = session.query(Node).filter_by(id=topic['node_id']).first()
-            if not node:
-                node = Node(id=topic['node_id'], name=topic['name'])
-                session.add(node)
-            node.name = topic['name']
-            # find parent of this node
-            parent_node = node.parent
-            if not parent_node:
-                if topic['section_node_id']:
-                    parent_node = session.query(Node).filter_by(id=topic['section_node_id']).first()
-                    if not parent_node:
-                        parent_node = Node(id=topic['section_node_id'],
-                                           parent_id=NodeType.TOPIC.value,
-                                           name=topic['section_name'])
-                    parent_node.name = topic['section_name']
-                else:
-                    parent_node = session.query(Node).filter_by(id=topic['type'].value).first()
-                    if not parent_node:
-                        raise Exception('Cannot find parent for node')
+            node = _get_or_create_topic_node(session, topic)
 
-                node.parent = parent_node
+            node.name = topic['name']
+
+            # find parent of this node
+            node.parent = _get_or_create_parent_node(node, session, topic)
+
             last_checked = node.last_checked
             node.last_checked = datetime.datetime.now()
             session.commit()
 
-            current_node = node
-            excepted = set()
-            subscribed = {}
-            while current_node:
-                subscriptions = current_node.subscriptions
-                for s in subscriptions:
-                    if s.exception:
-                        excepted.add(s.chat_id)
-                    else:
-                        if s.chat_id not in excepted and s.chat_id not in subscribed:
-                            subscribed[s.chat_id] = s
-                current_node = current_node.parent
+            subscribed = _get_subscriptions(node)
             print(subscribed)
 
             if topic['new_comments_link']:
@@ -99,13 +117,16 @@ def run():
             for chat_id, subscription in subscribed.items():
                 if topic['status'] == 'new' and not last_checked:
                     updates_topics_new[chat_id].append(topic)
-                if comments and not subscription.no_comments:
-                    if subscription.no_replies:
-                        sub_comments = [comment for comment in comments if not comment['is_reply']]
-                    else:
-                        sub_comments = comments
-                    if sub_comments:
-                        updates_comments_new[chat_id].append((topic, sub_comments))
+
+                if not comments or subscription.no_comments:
+                    continue
+
+                if subscription.no_replies:
+                    sub_comments = [comment for comment in comments if not comment['is_reply']]
+                else:
+                    sub_comments = comments
+                if sub_comments:
+                    updates_comments_new[chat_id].append((topic, sub_comments))
 
         send_message_new_topics(updates_topics_new)
         send_message_new_comments(updates_comments_new)

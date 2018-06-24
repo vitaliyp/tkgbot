@@ -32,10 +32,11 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
     node_all = models.Node(id=models.NodeType.ALL.value)
+    node_sections = models.Node(id=models.NodeType.SECTION.value, parent=node_all)
     node_materials = models.Node(id=models.NodeType.MATERIAL.value, parent=node_all)
     node_events = models.Node(id=models.NodeType.EVENT.value, parent=node_all)
     node_topics = models.Node(id=models.NodeType.TOPIC.value, parent=node_all)
     node_news = models.Node(id=models.NodeType.NEWS.value, parent=node_all)
 
     with session_scope() as session:
-        session.add_all((node_all, node_materials, node_events, node_topics, node_news))
+        session.add_all((node_all, node_sections, node_materials, node_events, node_topics, node_news))
