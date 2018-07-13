@@ -170,39 +170,86 @@ class ShowCommand(BotCommand):
     help = _('''Show your subscriptions''')
 
     def __call__(self, chat_id, args):
+        def get_node_description(node_id):
+            node_descriptions = {
+                NodeType.ALL: _('Whole forum'),
+                NodeType.MATERIAL: _('Materials'),
+                NodeType.EVENT: _('Events'),
+                NodeType.TOPIC: _('Topics'),
+                NodeType.NEWS: _('News'),
+            }
+
+            try:
+                result = node_descriptions.get(NodeType(node_id), '')
+            except ValueError:
+                result = ''
+
+            return result
+
+        def get_node_str(node_id):
+            node_strs = {
+                NodeType.ALL: 'all',
+                NodeType.MATERIAL: 'materials',
+                NodeType.EVENT: 'events',
+                NodeType.TOPIC: 'topics',
+                NodeType.NEWS: 'news',
+            }
+            
+            try:
+                result = node_strs.get(NodeType(node_id), '')
+            except ValueError:
+                result = ''
+
+            return result
+
+        def build_subscription_info(sub):
+            line = ['  -'] # What are you looking at?
+
+            node_description = get_node_description(sub.node_id)
+            if node_description:
+                line.append(f' {node_description}')
+            elif sub.node.name and sub.node.name:
+                line.append(f' "{sub.node.name}"')
+
+            if not sub.exception:
+                if sub.no_replies or sub.no_comments:
+                    line.append(' (')
+
+                    param_str = []
+                    if sub.no_replies:
+                        param_str.append(_('top level posts only'))
+                    if sub.no_comments:
+                        param_str.append(_('without comments'))
+                    line.append(', '.join(param_str))
+                    
+                    line.append(')')
+            if not node_description:
+                line.append(f' \[`{sub.node_id}`]')
+            else:
+                line.append(f' \[`{get_node_str(sub.node_id)}`]')
+
+            return ''.join(line)
+
         subs = self.bot.session.query(Subscription).filter_by(chat_id=chat_id).all()
 
-        if not subs:
-            return _('You have no subscriptions')
+        included_subs = [x for x in subs if x.exception == False]
+        excluded_subs = [x for x in subs if x.exception == True]
 
-        msg_list = []
-        node_strs = {
-            NodeType.ALL: 'all',
-            NodeType.MATERIAL: 'materials',
-            NodeType.EVENT: 'events',
-            NodeType.TOPIC: 'topics',
-            NodeType.NEWS: 'news',
-        }
+        if not included_subs:
+            return _('You have no subscriptions. :(\nTry `/sub events`.')
 
-        for sub in subs:
-            sub_list = []
-            try:
-                t = NodeType(sub.node_id)
-                node_name = node_strs.get(t, str(sub.node_id))
-            except ValueError:
-                node_name = str(sub.node_id)
-            sub_list.append('*'+node_name+'*')
-            if sub.exception:
-                sub_list.append('except')
-            if sub.no_comments:
-                sub_list.append('no-comments')
-            if sub.no_replies:
-                sub_list.append('no-replies')
-            if sub.node.name:
-                sub_list.append('('+sub.node.name+')')
-            msg_list.append(' '.join(sub_list))
+        msg = [_('You *will receive* notifications from\n')]
 
-        return '\n'.join(msg_list)
+        for sub in included_subs:
+            msg.append(build_subscription_info(sub))
+
+        if excluded_subs:
+            msg.append(_('\n*excluding*\n'))
+
+            for sub in excluded_subs:
+                msg.append(build_subscription_info(sub))
+
+        return '\n'.join(msg)
 
 
 class WrongCommand(BotCommand):
