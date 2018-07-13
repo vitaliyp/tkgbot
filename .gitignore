@@ -5,3 +5,6 @@ temp/
 # Database
 *.db
 *.sqlite3
+
+# pytest
+.pytest_cache/
