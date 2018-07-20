@@ -14,7 +14,7 @@ debug = True
 database_debug_output = debug
 
 telegram_api_url = f'https://api.telegram.org/bot{secret.token}/'
-polling_timeout = 300
+polling_timeout = 600
 forum_check_interval = 60
 
 thread_pool_executor_max_workers = 3
