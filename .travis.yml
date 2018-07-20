@@ -1,4 +1,10 @@
+sudo: required
+
 language: python
+
+services:
+    - docker
+
 python:
     - 3.6
 install:
@@ -6,3 +12,14 @@ install:
     - pipenv install --dev
 script:
     - python -m pytest
+
+
+deploy:
+    #    on:
+    #    branch: develop
+    provider: script
+    script:
+        - docker pull vitaliyp/tkgbot
+        - docker build . -t vitaliyp/tkgbot -t "vitaliyp/tkgbot:$TRAVIS_COMMIT"
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push vitaliyp/tkgbot
