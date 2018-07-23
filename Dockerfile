@@ -3,7 +3,7 @@ FROM python:3.6.3-alpine
 COPY Pipfile* /tkgbot/
 WORKDIR /tkgbot
 
-RUN pip install pipenv && pipenv install
+RUN pip install pipenv && pipenv sync
 
 COPY . /tkgbot
 
