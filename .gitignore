@@ -1,4 +1,10 @@
 __pycache__
 temp/
 *.pyc
+
+# Database
 *.db
+*.sqlite3
+
+# pytest
+.pytest_cache/
