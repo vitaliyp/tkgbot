@@ -1,23 +1,16 @@
 [[source]]
-
 name = "pypi"
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
-
 [dev-packages]
-
 pytest = "*"
 
-
 [packages]
-
-"beautifulsoup4" = "==4.5.3"
-requests = "==2.13.0"
-sqlalchemy = "==1.1.6"
+"beautifulsoup4" = "*"
+requests = "*"
+sqlalchemy = "*"
 aiohttp = "*"
 
-
 [requires]
-
 python_version = "3.6"
