@@ -1,4 +1,4 @@
-FROM python:3.6.3-alpine
+FROM python:3.6-alpine
 
 COPY Pipfile* /tkgbot/
 WORKDIR /tkgbot
