@@ -1,3 +1,5 @@
+if [ ! -z $TRAVIS_TAG ]; then TRAVIS_BRANCH=master; fi
+
 IMAGE="$DOCKER_USERNAME/$DOCKER_REPO"
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
