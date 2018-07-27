@@ -4,12 +4,13 @@ CONTAINER_NAME="tkgbot-${TRAVIS_BRANCH}"
 IMAGE="$DOCKER_USERNAME/$DOCKER_REPO"
 source scripts/env-$TRAVIS_BRANCH.sh
 
+restart_option="--rm"
+volume_option=""
+
 case $TRAVIS_BRANCH in
-develop)
-    volume_option=""
-    ;;
 master)
     volume_option="--volume tkgbot-data:/tkgbot/data"
+    restart_option="--restart on-failure"
     ;;
 *)
     exit 1
@@ -25,5 +26,6 @@ ssh travis@$DEPLOYMENT_HOST -i scripts/id_rsa << EOF
     -e "FORUM_PASSWORD=$FORUM_PASSWORD" \
     -e "TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN" \
     $volume_option \
-    --rm --name $CONTAINER_NAME $IMAGE:$TRAVIS_BRANCH
+    $restart_option \
+    --name $CONTAINER_NAME $IMAGE:$TRAVIS_BRANCH
 EOF
