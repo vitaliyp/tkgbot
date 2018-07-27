@@ -1,6 +1,8 @@
 CONTAINER_NAME="tkgbot-${TRAVIS_BRANCH}"
 IMAGE="$DOCKER_USERNAME/$DOCKER_REPO"
 
+if [ -z ${TRAVIS_TAG+x} ]; then TRAVIS_BRANCH=master; fi
+
 source scripts/env-$TRAVIS_BRANCH.sh
 
 case $TRAVIS_BRANCH in
