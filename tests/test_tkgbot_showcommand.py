@@ -1,6 +1,6 @@
-from tkgbot import ShowCommand
-from models import NodeType
-from testutils import objectview
+from tkgbot.tkgbot import ShowCommand
+from tkgbot.models import NodeType
+from tkgbot.testutils import objectview
 
 def test__get_node_description():
     c = ShowCommand()

@@ -4,8 +4,8 @@ import datetime
 from bs4 import BeautifulSoup
 import requests
 
-import secret
-from models import NodeType
+from . import secret
+from .models import NodeType
 
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'

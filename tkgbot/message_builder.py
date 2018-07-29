@@ -1,6 +1,6 @@
-from settings import translation
+from .settings import translation
 
-import forum
+from . import forum
 
 _ = translation.gettext
 

@@ -1,9 +1,9 @@
 import sys
 import re
 
-from bot import BotError, BotCommand, Bot
-from models import Subscription, Node, NodeType
-from settings import translation
+from .bot import BotError, BotCommand, Bot
+from .models import Subscription, Node, NodeType
+from .settings import translation
 
 
 _ = translation.gettext

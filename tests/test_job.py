@@ -1,6 +1,5 @@
 import unittest
-from message_builder import NewCommentsMessageBuilder
-import job
+from tkgbot.message_builder import NewCommentsMessageBuilder
 import datetime
 
 

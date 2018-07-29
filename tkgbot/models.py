@@ -1,7 +1,9 @@
+import enum
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship, backref
-from database import Base
-import enum
+
+from .database import Base
 
 
 class NodeType(enum.Enum):

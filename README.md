@@ -31,7 +31,7 @@ $ pipenv sync
 4. Initialize database
 
 ```
-$ pipenv run python -c "import database; database.init_db()"
+$ pipenv run python -c "from tkgbot import database; database.init_db()"
 ```
 
 ## Configure
@@ -59,7 +59,7 @@ If you need to persist variables - check [instructions](https://help.ubuntu.com/
 Step inside project's directory and simply do:
 
 ```
-$ pipenv run python app.py
+$ pipenv run python -m tkgbot
 ```
 
 ## (Optional) Run tests

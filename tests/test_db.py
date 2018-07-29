@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-import settings
+from tkgbot import settings
 
 db_path = ('testdata',)
 db_filename = 'database'
@@ -13,8 +13,8 @@ db_path_in_url = '/'.join(db_path)
 settings.database_url = f'sqlite:///{db_path_in_url}/database'
 settings.database_debug_output = False
 
-import database
-from models import Node
+from tkgbot import database
+from tkgbot.models import Node
 
 
 @pytest.fixture(scope='function')

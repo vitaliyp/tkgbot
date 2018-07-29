@@ -2,7 +2,7 @@ import os
 import gettext
 import logging
 
-import secret
+from . import secret
 
 logging.basicConfig(level=logging.DEBUG)
 

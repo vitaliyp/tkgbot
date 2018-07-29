@@ -3,11 +3,11 @@ from collections import defaultdict
 import datetime
 import requests
 
-import forum
-from message_builder import NewCommentsMessageBuilder
-from settings import translation, telegram_api_url
-from database import session_scope
-from models import Node, NodeType
+from . import forum
+from .message_builder import NewCommentsMessageBuilder
+from .settings import translation, telegram_api_url
+from .database import session_scope
+from .models import Node, NodeType
 
 _ = translation.gettext
 

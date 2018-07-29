@@ -2,10 +2,10 @@ import asyncio
 import concurrent
 import logging
 
-import job
-import settings
-import telegram
-from tkgbot import TkgBot
+from . import job
+from . import settings
+from . import telegram
+from .tkgbot import TkgBot
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ async def forum_check_scheduler():
         await asyncio.sleep(settings.forum_check_interval)
 
 
-if __name__ == '__main__':
+def run():
     logger = logging.getLogger(__name__)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.gather(

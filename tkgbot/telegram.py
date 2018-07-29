@@ -3,8 +3,8 @@ import logging
 import aiohttp
 from aiohttp import client
 
-import settings
-from settings import telegram_api_url
+from . import settings
+from .settings import telegram_api_url
 
 logger = logging.getLogger(__name__)
 

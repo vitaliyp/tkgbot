@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-import settings
+from . import settings
 
 engine = create_engine(settings.database_url, echo=settings.database_debug_output)
 session_factory = sessionmaker(bind=engine)
@@ -28,7 +28,7 @@ def session_scope():
 
 
 def init_db():
-    import models
+    from . import models
     Base.metadata.create_all(bind=engine)
 
     node_all = models.Node(id=models.NodeType.ALL.value)
