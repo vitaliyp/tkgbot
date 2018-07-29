@@ -18,8 +18,14 @@ install:
     - pip install pipenv
     - pipenv install --dev
 
+    - pip install codecov
+    - pip install pytest-cov
+
 script:
-    - python -m pytest
+    - python -m pytest --cov=./tkgbot
+
+after_success:
+    - codecov
 
 deploy:
     - provider: script
