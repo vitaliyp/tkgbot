@@ -80,6 +80,7 @@ def _get_or_create_parent_node(node, session, topic):
                                    parent_id=NodeType.TOPIC.value,
                                    name=topic['section_name'])
             parent_node.name = topic['section_name']
+            parent_node.parent_id = NodeType.TOPIC.value
         else:
             parent_node = session.query(Node).filter_by(id=topic['type'].value).first()
             if not parent_node:
