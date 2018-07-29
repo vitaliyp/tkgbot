@@ -12,6 +12,8 @@ master)
     volume_option="--volume tkgbot-data:/tkgbot/data"
     restart_option="--restart on-failure"
     ;;
+develop)
+    ;;
 *)
     exit 1
     ;;
