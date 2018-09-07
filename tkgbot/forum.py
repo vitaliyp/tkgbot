@@ -41,19 +41,7 @@ def get_id_from_link(link):
         return None
 
 
-def get_updated_topics():
-    topics = []
-
-    resp = session.get('https://www.tkg.org.ua/tracker')
-    soup = BeautifulSoup(resp.text, 'html.parser')
-
-    if not _check_loginned(soup):
-        _login()
-
-    tbody = soup.find(id='footable').tbody
-    marks = tbody.find_all('mark')
-    for mark in marks:
-        tr = mark.find_parent('tr')
+def _parse_topic(tr):
         topic = {}
 
         topic_type_str = tr.find(class_='views-field-type').text.strip()
@@ -62,7 +50,7 @@ def get_updated_topics():
                          'Подія': NodeType.EVENT,
                          'Новина': NodeType.NEWS}.get(topic_type_str, None)
         if not topic['type']:
-            continue
+            return None
 
         title_a = tr.find(class_='views-field-title').a
         extracted_mark = title_a.mark.extract()
@@ -70,11 +58,11 @@ def get_updated_topics():
         if extracted_mark['class'] and extracted_mark['class'][0] in ('updated', 'new'):
             topic['status'] = extracted_mark['class'][0]
         else:
-            continue
+            return None
         topic['link'] = title_a['href']
         node_id = get_id_from_link(topic['link'])
         if not node_id:
-            continue
+            return None
         topic['node_id'] = node_id
         section_a = tr.find('td', class_='views-field-og-group-ref').a
         if section_a:
@@ -94,18 +82,37 @@ def get_updated_topics():
         total_count = None
         try:
             if not count_strings or len(count_strings) > 2:
-                continue
+                return None
             if len(count_strings) == 2:
                 new_count = int(count_strings[1].split()[0])
             total_count = int(count_strings[0])
         except ValueError:
-            continue
+            return None
         new_comments_link_a = count_el.find('a')
         topic['new_comments_link'] = new_comments_link_a['href'] if new_comments_link_a else None
         topic['new_messages_count'] = new_count
         topic['messages_count'] = total_count
 
-        topics.append(topic)
+        return topic
+
+
+def get_updated_topics():
+    topics = []
+
+    resp = session.get('https://www.tkg.org.ua/tracker')
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    if not _check_loginned(soup):
+        _login()
+
+    tbody = soup.find(id='footable').tbody
+    marks = tbody.find_all('mark')
+    for mark in marks:
+        tr = mark.find_parent('tr')
+        topic = _parse_topic(tr)
+        if topic:
+            topics.append(topic)
+
     return topics
 
 
@@ -138,47 +145,44 @@ def _parse_comment_body(body):
     return '\n'.join(strings)
 
 
+def _parse_comment(comment_el):
+    comment = {}
+    # Check if comment is a reply
+    comment['is_reply'] = bool(comment_el.find_parent('div', class_='indented'))
+    header = comment_el.header
+    subj_a = header.find('a', class_='permalink')
+    subject = subj_a.text
+    comment['subject'] = subj_a.text if subj_a.text not in ('.', '') else None
+    comment['link'] = subj_a['href']
+    submitted = header.find('p', class_='submitted')
+    username_el = submitted.find(class_='username')
+    user_name = username_el.text
+    comment['user_name'] = user_name
+
+    anon = username_el.name == 'a'
+    comment['anon'] = anon
+    if anon:
+        comment['user_link'] = username_el['href']
+
+    datetime_str = submitted.time['datetime']
+    datetime = _parse_datetime(datetime_str)
+    comment['date'] = datetime
+    comment_body_raw = comment_el.find('div', class_='field-name-comment-body').find('div', class_='field-item')
+    comment_body = _parse_comment_body(comment_body_raw)
+    comment['body'] = comment_body
+    reply_link = comment_el.find('li', class_='comment-reply').a['href']
+    comment['reply_link'] = reply_link
+    quote_link = comment_el.find('li', class_='quote').a['href']
+    comment['quote_link'] = quote_link
+    return comment
+
+
 def _get_new_comments_on_page(soup):
     marks = soup.find_all('mark', class_='new')
     comments = []
     for mark in marks:
-        comment = {}
         comment_el = mark.find_parent('article', class_='comment')
-
-        # Check if comment is a reply
-        comment['is_reply'] = bool(comment_el.find_parent('div', class_='indented'))
-
-        header = comment_el.header
-
-        subj_a = header.find('a', class_='permalink')
-        subject = subj_a.text
-        comment['subject'] = subj_a.text if subj_a.text not in ('.', '')  else None
-        comment['link'] = subj_a['href']
-
-        submitted = header.find('p', class_='submitted')
-        username_el = submitted.find(class_='username')
-        user_name = username_el.text
-        comment['user_name'] = user_name
-        if username_el.name == 'a':
-            comment['anon'] = False
-            comment['user_link'] = username_el['href']
-        else:
-            comment['anon'] = True
-
-        datetime_str = submitted.time['datetime']
-        datetime = _parse_datetime(datetime_str)
-        comment['date'] = datetime
-
-        comment_body_raw = comment_el.find('div', class_='field-name-comment-body').find('div', class_='field-item')
-        comment_body = _parse_comment_body(comment_body_raw)
-        comment['body'] = comment_body
-
-        reply_link = comment_el.find('li', class_='comment-reply').a['href']
-        comment['reply_link'] = reply_link
-
-        quote_link = comment_el.find('li', class_='quote').a['href']
-        comment['quote_link'] = quote_link
-
+        comment = _parse_comment(comment_el)
         comments.append(comment)
 
     return comments
