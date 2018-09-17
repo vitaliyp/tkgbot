@@ -13,7 +13,7 @@ MSG_OK = _('Ok.')
 
 
 def _parse_node_id(string):
-    m = re.match('^((https?://)?(www.)?tkg.org.ua/node/)?(?P<node_id>\d+)$', string)
+    m = re.match(r'^((https?://)?(www.)?tkg.org.ua/node/)?(?P<node_id>\d+)$', string)
     if not m:
         return None
     node_id_str = m.group('node_id')
@@ -223,9 +223,9 @@ class ShowCommand(BotCommand):
                 
                 line.append(')')
         if not node_description:
-            line.append(f' \[`{sub.node_id}`]')
+            line.append(f' \\[`{sub.node_id}`]')
         else:
-            line.append(f' \[`{self._get_node_str(sub.node_id)}`]')
+            line.append(f' \\[`{self._get_node_str(sub.node_id)}`]')
 
         return ''.join(line)
 
