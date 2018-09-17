@@ -36,24 +36,24 @@ class TestCommentsMessageBuilder(unittest.TestCase):
                         'Comment body\n'
                         )
 
-        self.assertEquals(msg, expected_msg)
+        self.assertEqual(msg, expected_msg)
 
 
 class TestEscaping(unittest.TestCase):
     def test_html_escaping(self):
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters(''), '')
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('<'), '&lt;')
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('>'), '&gt;')
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('&'), '&amp;')
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('"'), '&quot;')
-        self.assertEquals(NewCommentsMessageBuilder._escape_html_characters('asd&as<strong>asd'),
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters(''), '')
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('<'), '&lt;')
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('>'), '&gt;')
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('&'), '&amp;')
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('"'), '&quot;')
+        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('asd&as<strong>asd'),
                           'asd&amp;as&lt;strong&gt;asd')
 
 
 class TestFormatting(unittest.TestCase):
     def test_format_html_bold(self):
-        self.assertEquals(NewCommentsMessageBuilder._format_html_bold('test'), '<strong>test</strong>')
+        self.assertEqual(NewCommentsMessageBuilder._format_html_bold('test'), '<strong>test</strong>')
 
     def test_format_html_link(self):
-        self.assertEquals(NewCommentsMessageBuilder._format_html_link('link', 'text'),
+        self.assertEqual(NewCommentsMessageBuilder._format_html_link('link', 'text'),
                           '<a href="link">text</a>')

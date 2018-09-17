@@ -34,7 +34,7 @@ def visit_topic(link):
 
 
 def get_id_from_link(link):
-    m = re.match('/node/([\d]+)', link)
+    m = re.match(r'/node/([\d]+)', link)
     if m:
         return int(m.group(1))
     else:
@@ -129,7 +129,7 @@ def _get_other_pages_links(soup):
 
 
 def _parse_datetime(datetime_string):
-    m = re.match('(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})', datetime_string)
+    m = re.match(r'(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})', datetime_string)
     if not m:
         return None
 

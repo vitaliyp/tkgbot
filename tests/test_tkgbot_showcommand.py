@@ -51,25 +51,25 @@ def test__build_subscription_info():
 
     sub = empty_sub()
     sub.node_id = 12
-    assert c._build_subscription_info(sub) == '  - \[`12`]', 'Display node_id if numerical value provided'
+    assert c._build_subscription_info(sub) == r'  - \[`12`]', 'Display node_id if numerical value provided'
 
     sub = empty_sub()
     sub.node_id = 'all'
-    assert c._build_subscription_info(sub) == '  - \[`all`]', 'Display node_id if text value provided'
+    assert c._build_subscription_info(sub) == r'  - \[`all`]', 'Display node_id if text value provided'
 
     sub = empty_sub()
     sub.node_id = 100
     sub.node.name = "Epic"
-    assert c._build_subscription_info(sub) == '  - "Epic" \[`100`]', 'Display name when provided'
+    assert c._build_subscription_info(sub) == r'  - "Epic" \[`100`]', 'Display name when provided'
 
     sub = empty_sub()
     sub.node_id = 100
     sub.node.name = "Epic"
     sub.no_comments = True
-    assert len(c._build_subscription_info(sub)) > len('  - "Epic" \[`100`]'), 'Display additional info for not excluded subs'
+    assert len(c._build_subscription_info(sub)) > len(r'  - "Epic" \[`100`]'), 'Display additional info for not excluded subs'
 
     sub = empty_sub()
     sub.node_id = 100
     sub.node.name = "Epic"
     sub.no_replies = True
-    assert len(c._build_subscription_info(sub)) > len('  - "Epic" \[`100`]'), 'Display additional info for not excluded subs'
+    assert len(c._build_subscription_info(sub)) > len(r'  - "Epic" \[`100`]'), 'Display additional info for not excluded subs'
