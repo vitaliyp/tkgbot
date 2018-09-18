@@ -57,7 +57,7 @@ class NewCommentsMessageBuilder:
         ])
         if comment['subject']:
             l.extend((cls._escape_html_characters(comment['subject'].upper()), '\n'))
-        l.extend((cls._escape_html_characters(comment['body']), '\n'))
+        l.extend((cls._escape_html_characters(comment['body'].body), '\n'))
         return ''.join(l)
 
     def _reset(self):

@@ -1,5 +1,6 @@
 import re
 import datetime
+from dataclasses import dataclass
 
 from bs4 import BeautifulSoup
 import requests
@@ -9,6 +10,34 @@ from .models import NodeType
 
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
+
+
+@dataclass
+class Comment:
+    link: str = None
+    is_reply: bool = None
+    reply_link: str = None
+    date: datetime.datetime = None
+    anon: bool = None
+    user_name: str = None
+    user_link: str = None
+    subject: str = None
+    body: 'ParsedBody' = None
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+
+@dataclass
+class ParsedBody:
+    body: str
+
+    def __str__(self):
+        return self.body
+
 
 session = requests.Session()
 
@@ -142,11 +171,12 @@ def _parse_datetime(datetime_string):
 
 def _parse_comment_body(body):
     strings = body.stripped_strings
-    return '\n'.join(strings)
+    parsed_body = ParsedBody('\n'.join(strings))
+    return parsed_body
 
 
 def _parse_comment(comment_el):
-    comment = {}
+    comment = Comment()
     # Check if comment is a reply
     comment['is_reply'] = bool(comment_el.find_parent('div', class_='indented'))
     header = comment_el.header

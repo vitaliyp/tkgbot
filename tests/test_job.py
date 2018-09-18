@@ -1,4 +1,6 @@
 import unittest
+
+from tkgbot.forum import ParsedBody, Comment
 from tkgbot.message_builder import NewCommentsMessageBuilder
 import datetime
 
@@ -8,14 +10,15 @@ class TestCommentsMessageBuilder(unittest.TestCase):
         self.maxDiff = None
 
         builder = NewCommentsMessageBuilder(maxsize=1000)
-        comment = {
-            'body': 'Comment body',
+        comment_data = {
+            'body': ParsedBody('Comment body'),
             'user_name': 'username',
             'date': datetime.datetime(year=2017, month=3, day=2, hour=1, minute=23, second=34),
             'subject': 'Subject',
             'link': '/comment_link',
             'reply_link': '/reply_link',
         }
+        comment = Comment(**comment_data)
         topic = {
             'name': 'Topic_name',
             'section_name': 'Section_name',
