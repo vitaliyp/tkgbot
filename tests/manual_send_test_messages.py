@@ -1,10 +1,10 @@
-import datetime
-
 from bs4 import BeautifulSoup
 
+from tkgbot.message_builder import NewCommentsMessageBuilder
 from tkgbot.forum import forum
+from tkgbot import job
 
-comment_html = """<article class="comment first odd clearfix">
+raw_comment = """<article class="comment first odd clearfix">
     <header><h3 class="comment__title comment-title"><a href="/comment/225767#comment-225767" class="permalink"
                                                         rel="bookmark">.</a></h3>
         <p class="submitted"><span class="user-picture"> <a href="/user/2610"
@@ -32,7 +32,11 @@ comment_html = """<article class="comment first odd clearfix">
     <div class="field field-name-comment-body field-type-text-long field-label-hidden">
         <div class="field-items">
             <div class="field-item even"><p></p>
-                <p>Test Body.&nbsp;</p></div>
+                <p>Test Body.&nbsp;</p>
+                <p></p>
+                <p><a href="https://example.com">Example Link</a> Text after link</p>
+                <p><img src="https://example.com/img.jpg"></p>
+            </div>
         </div>
     </div>
     <ul class="links inline">
@@ -43,68 +47,23 @@ comment_html = """<article class="comment first odd clearfix">
 </article>"""
 
 
-def test_parse_simple_comment():
-    bs = BeautifulSoup(comment_html, 'html.parser')
-    comment_element = bs.findChild()
+def main():
+    parsed_comment = forum._parse_comment(BeautifulSoup(raw_comment, 'html.parser'))
+    builder = NewCommentsMessageBuilder(1000)
+    topic = {
+        'name': 'Topic_name',
+        'section_name': 'Section_name',
+        'link': '/node/123',
+        'section_link': '/node/345',
 
-    comment = forum._parse_comment(comment_element)
+    }
 
-    assert comment.link == '/comment/225767#comment-225767'
-    assert comment.reply_link == '/comment/reply/35676/225767'
-    assert comment.anon == False
-    assert comment.subject == None
-    assert comment.user_name == 'TestUser'
-    assert comment.user_link == "/user/2610"
-    assert comment.date == datetime.datetime(2018, 8, 8, 16, 7,
-                                             tzinfo=datetime.timezone(datetime.timedelta(seconds=10800)))
-    assert comment.is_reply == False
+    print(parsed_comment.date)
+    builder.add_comment(topic, parsed_comment)
 
+    job.send_message(229275810, builder.get_message())
 
+    print(parsed_comment)
 
-def test_parse_text_body():
-    body_html = """
-<div class="field-item even">
-    <p>Test Body.&nbsp;</p>
-</div>
-"""
-    bs = BeautifulSoup(body_html, 'html.parser')
-    body_element = bs.findChild()
-
-    parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
-
-    result = parsed_body.to_telegram_html()
-    assert result == """Test Body."""
-
-def test_parse_image_body():
-    body_html = """
-<div class="field-item even">
-    <p>Test Body.&nbsp;</p>
-    <img src="https://example.com/test.jpg"></img>
-</div>
-"""
-    bs = BeautifulSoup(body_html, 'html.parser')
-    body_element = bs.findChild()
-
-    parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
-
-    result = parsed_body.to_telegram_html()
-    assert result == """Test Body.\n<a href="https://example.com/test.jpg">image</a>"""
-
-
-def test_parse_body_with_link():
-    body_html = """
-<div class="field-item even">
-    <p>Test Body.&nbsp;</p>
-    <p><a href="https://example.com">link</a></p>
-</div>
-"""
-    bs = BeautifulSoup(body_html, 'html.parser')
-    body_element = bs.findChild()
-
-    parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
-
-    result = parsed_body.to_telegram_html()
-    assert result == """Test Body.\n<a href="https://example.com">link</a>"""
+if __name__ == '__main__':
+    main()

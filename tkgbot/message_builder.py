@@ -1,6 +1,6 @@
 from .settings import translation
 
-from . import forum
+from tkgbot.forum import forum
 
 _ = translation.gettext
 
@@ -57,7 +57,7 @@ class NewCommentsMessageBuilder:
         ])
         if comment['subject']:
             l.extend((cls._escape_html_characters(comment['subject'].upper()), '\n'))
-        l.extend((cls._escape_html_characters(comment['body'].body), '\n'))
+        l.extend((comment.body.to_telegram_html(), '\n'))
         return ''.join(l)
 
     def _reset(self):

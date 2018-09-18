@@ -1,6 +1,6 @@
 import unittest
 
-from tkgbot.forum import ParsedBody, Comment
+from tkgbot.forum.components import Comment, ParsedBody
 from tkgbot.message_builder import NewCommentsMessageBuilder
 import datetime
 

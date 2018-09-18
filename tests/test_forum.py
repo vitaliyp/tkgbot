@@ -1,7 +1,7 @@
 import unittest
 from bs4 import BeautifulSoup
 
-from tkgbot import forum
+from tkgbot.forum import forum
 
 
 class TestSesstion(unittest.TestCase):

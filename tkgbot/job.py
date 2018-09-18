@@ -3,7 +3,7 @@ from collections import defaultdict
 import datetime
 import requests
 
-from . import forum
+from .forum import forum
 from .message_builder import NewCommentsMessageBuilder
 from .settings import translation, telegram_api_url
 from .database import session_scope

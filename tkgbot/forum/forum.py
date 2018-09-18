@@ -1,43 +1,16 @@
 import re
 import datetime
-from dataclasses import dataclass
 
+import bs4
 from bs4 import BeautifulSoup
 import requests
 
-from . import secret
-from .models import NodeType
+from tkgbot import secret
+from tkgbot.forum.components import Comment, CommentImage, CommentLink, CommentText, ParsedBody, CommentLineBreak
+from tkgbot.models import NodeType
 
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
-
-
-@dataclass
-class Comment:
-    link: str = None
-    is_reply: bool = None
-    reply_link: str = None
-    date: datetime.datetime = None
-    anon: bool = None
-    user_name: str = None
-    user_link: str = None
-    subject: str = None
-    body: 'ParsedBody' = None
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
-
-
-@dataclass
-class ParsedBody:
-    body: str
-
-    def __str__(self):
-        return self.body
-
 
 session = requests.Session()
 
@@ -169,9 +142,38 @@ def _parse_datetime(datetime_string):
     return datetime.datetime(data[0], data[1], data[2], data[3], data[4], data[5], tzinfo=tz)
 
 
-def _parse_comment_body(body):
+def _parse_tag(tag: bs4.Tag):
+    parts_list = []
+
+    for child in tag.children:
+        if isinstance(child, bs4.NavigableString):
+            string = str(child.string).strip()
+            if string:
+                parts_list.append(CommentText(string))
+        if isinstance(child, bs4.Tag):
+            tag_name = child.name
+            if tag_name == 'a':
+                href = child.get('href')
+                text = ' '.join(string for string in child.stripped_strings if string)
+                parts_list.append(CommentLink(text=text, href=href))
+            elif tag_name == 'p':
+                parsed_components = _parse_tag(child)
+                if parsed_components:
+                    parts_list.extend(parsed_components)
+                    parts_list.append(CommentLineBreak())
+            elif tag_name == 'img':
+                src = child.get('src')
+                parts_list.append(CommentImage(src))
+            else:
+                parts_list.extend(_parse_tag(child))
+
+    return parts_list
+
+
+def _parse_comment_body(body: bs4.Tag):
+    parts_list = _parse_tag(body)
     strings = body.stripped_strings
-    parsed_body = ParsedBody('\n'.join(strings))
+    parsed_body = ParsedBody('\n'.join(strings), parts_list)
     return parsed_body
 
 
