@@ -189,9 +189,9 @@ def _parse_comment(comment_el):
     user_name = username_el.text
     comment['user_name'] = user_name
 
-    anon = username_el.name == 'a'
+    anon = username_el.name != 'a'
     comment['anon'] = anon
-    if anon:
+    if not anon:
         comment['user_link'] = username_el['href']
 
     datetime_str = submitted.time['datetime']

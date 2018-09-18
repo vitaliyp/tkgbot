@@ -1,0 +1,52 @@
+from bs4 import BeautifulSoup
+
+from tkgbot import forum
+
+comment_html = """<article class="comment first odd clearfix">
+    <header><h3 class="comment__title comment-title"><a href="/comment/225767#comment-225767" class="permalink"
+                                                        rel="bookmark">.</a></h3>
+        <p class="submitted"><span class="user-picture"> <a href="/user/2610"
+                                                            title="Переглянути профіль користувача."><img
+                src="https://www.tkg.org.ua/files/styles/75x75/public/pictures/picture-2610-1432375096.jpg?itok=wRa7OBDI"
+                alt="Зображення користувача РоСа." title="Зображення користувача РоСа."></a> </span> <a
+                href="/user/2610" title="Переглянути профіль користувача." class="username">РоСа</a> replied on
+            <time pubdate="" datetime="2018-08-08T16:07:00+03:00">Срд, 08/08/2018 - 16:07</time>
+            <a href="/comment/225767#comment-225767" class="permalink" rel="bookmark">#</a></p>
+    </header>
+    <div class="field field-name-field-vote field-type-vud-field field-label-hidden">
+        <div class="field-items">
+            <div class="field-item even">
+                <div class="vud-widget vud-widget-alternate" id="widget-comment-225767"><a
+                        href="/vote/comment/225767/1/vote/alternate/paVcIRacEpVJskxSz-nTRTP54pFqTzoTjC4mwDzLDNM/nojs"
+                        rel="nofollow" class="vud-link-up use-ajax ajax-processed">
+                    <div class="up-inactive" title="Відмітити"></div>
+                    <div class="element-invisible">Відмітити</div>
+                </a>
+                    <div class="alternate-votes-display">1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="field field-name-comment-body field-type-text-long field-label-hidden">
+        <div class="field-items">
+            <div class="field-item even"><p></p>
+                <p>Идея груповой упаковки крутая.&nbsp;</p></div>
+        </div>
+    </div>
+    <ul class="links inline">
+        <li class="comment-reply first"><a href="/comment/reply/35676/225767">відповісти</a></li>
+        <li class="quote last"><a href="/comment/reply/35676/225767?quote=1#comment-form"
+                                  title="Цитувати цей допис у відповіді.">цитувати</a></li>
+    </ul>
+</article>"""
+
+
+def test_parse_simple_comment():
+    bs = BeautifulSoup(comment_html, 'html.parser')
+    comment_element = bs.findChild()
+
+    comment = forum._parse_comment(comment_element)
+    print(comment)
+
+    assert comment.link == '/comment/225767#comment-225767'
+    assert comment.anon == False
