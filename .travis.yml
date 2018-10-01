@@ -15,6 +15,7 @@ before_install:
 
 install:
     - echo "|1|zFoi3NWuNMfPjYTElAfUMvx1AsU=|SoWJXLqRYTs/B5c2ikNFsm4RCzs= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMIM1KPTai7TeWpm+lhTkdkhqbasli1qqEHDOpmxFM83HPPe9IOcDgGjBS1sm3tbhL2nK2sjE+vOLZsH2TbPx1Y=" >> $HOME/.ssh/known_hosts
+    - echo "|1|P4C9N+uNEga7QcQSIR58BSkeqpw=|rMvtLT+zFDoCvzkk98xCxtYtlS4= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDurttScvMeqBPkPKvPxjaX/B/2WjWnP41Dfsdow43eJsiPF4my01g1U3k/i+eP8I4eTtUOxQRf+2ItmrFwy1+9OEaD6qxlH0M9gki3mdEw3PA4Sr3Fn5xK01U+yrJmEkmIcoTc3XoZepGSOKn5guUMMuDMmyzVfQBHjkx0mPqAG8dltDEZAAte3/UPv+qw2DF4htXyzNRmIUoTm4dScJMaadzyBGgXKFjlnjVuKNJ2LJCcx+d2fG30uYzJiXgoCkG12sf4NVJpxEtvs87LUnkSp8yEUPrkE6QX+AtxZtwLt40YYFbHzcPq4t8FLrB1X+sSWiEHyimZL51M/4jw38uN" >> $HOME/.ssh/known_hosts
     - pip install pipenv
     - pipenv install --dev
 
