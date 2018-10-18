@@ -3,6 +3,8 @@ import enum
 from dataclasses import dataclass, field
 from typing import List
 
+from tkgbot import utils
+
 
 @dataclass
 class Comment:
@@ -42,7 +44,7 @@ class CommentLink(BodyComponent):
         self.href = href
 
     def to_telegram_html(self):
-        return f'<a href="{self.href}">{self.text}</a>'
+        return f'<a href="{self.href}">{utils.escape_html_characters(self.text)}</a>'
 
 
 class CommentText(BodyComponent):
@@ -50,7 +52,7 @@ class CommentText(BodyComponent):
         self.text = text
 
     def to_telegram_html(self):
-        return self.text
+        return utils.escape_html_characters(self.text)
 
 
 class CommentLineBreak(BodyComponent):

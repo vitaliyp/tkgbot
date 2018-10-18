@@ -1,23 +1,14 @@
 from .settings import translation
-
 from tkgbot.forum import forum
+from tkgbot import utils
 
 _ = translation.gettext
+
 
 class NewCommentsMessageBuilder:
     def __init__(self, maxsize):
         self._maxsize = maxsize
         self._reset()
-
-    @classmethod
-    def _escape_html_characters(cls, text: str):
-        result_text = text
-        result_text = result_text.replace('&', '&amp;')
-        result_text = result_text.replace('<', '&lt;')
-        result_text = result_text.replace('>', '&gt;')
-        result_text = result_text.replace('"', '&quot;')
-
-        return result_text
 
     @classmethod
     def _format_html_bold(cls, text: str) -> str:
@@ -31,12 +22,12 @@ class NewCommentsMessageBuilder:
     def _construct_topic_header(cls, topic):
         l = []
         l.extend((
-            cls._format_html_link(forum.ROOT_LINK + topic['link'], cls._escape_html_characters(topic['name'])),
+            cls._format_html_link(forum.ROOT_LINK + topic['link'], utils.escape_html_characters(topic['name'])),
         ))
         if topic['section_name']:
             l.extend((
                 ' - ',
-                cls._format_html_link(forum.ROOT_LINK + topic['section_link'], cls._escape_html_characters(topic['section_name'])),
+                cls._format_html_link(forum.ROOT_LINK + topic['section_link'], utils.escape_html_characters(topic['section_name'])),
             ))
         l.append('\n')
         return ''.join(l)
@@ -45,7 +36,7 @@ class NewCommentsMessageBuilder:
     def _construct_comment(cls, comment):
         l = []
         l.extend([
-            cls._format_html_bold(cls._escape_html_characters(comment['user_name'])
+            cls._format_html_bold(utils.escape_html_characters(comment['user_name'])
                               + ' | '
                               + comment['date'].strftime('%d.%m.%y %H:%M'),
                               ),
@@ -56,7 +47,7 @@ class NewCommentsMessageBuilder:
             '\n',
         ])
         if comment['subject']:
-            l.extend((cls._escape_html_characters(comment['subject'].upper()), '\n'))
+            l.extend((utils.escape_html_characters(comment['subject'].upper()), '\n'))
         l.extend((comment.body.to_telegram_html(), '\n'))
         return ''.join(l)
 
