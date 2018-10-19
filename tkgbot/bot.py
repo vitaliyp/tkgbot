@@ -1,3 +1,4 @@
+from tkgbot.telegram.message_dispatch import TelegramMessage
 from . import database
 
 
@@ -50,15 +51,11 @@ class Bot:
             else:
                 return_message = self.default_command(chat_id, [])
 
-            response = {
-                'chat_id': chat_id,
-                'text': return_message,
-                'parse_mode': 'markdown',
-            }
+            telegram_message = TelegramMessage(chat_id, return_message, parse_mode='markdown')
 
             self.session = None
 
-        return response
+        return telegram_message
 
 
 class BotCommand:

@@ -6,7 +6,7 @@ from functools import partial
 from tkgbot.telegram.message_dispatch import MessageWorker, TelegramSender
 from . import job
 from . import settings
-from . import telegram
+from tkgbot.telegram import telegram
 from .tkgbot import TkgBot
 
 
@@ -22,7 +22,7 @@ async def worker(application):
             for message in messages:
                 response = bot.process_request(message)
                 if response:
-                    await telegram.respond(response)
+                    await application['message_queue'].put(response)
         except telegram.TelegramError:
             logger.warning(f'Error while getting messages from telegram', exc_info=True)
             await asyncio.sleep(5)
@@ -44,7 +44,7 @@ def init_message_dispatch(application, loop: asyncio.AbstractEventLoop):
     task = loop.create_task(message_worker.run())
 
     application['messages_task'] = task
-    application['messages_queue'] = message_queue
+    application['message_queue'] = message_queue
 
 
 def run():

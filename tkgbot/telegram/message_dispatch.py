@@ -24,7 +24,7 @@ class TelegramSender:
         payload = {
             'chat_id': message.chat_id,
             'text': message.text,
-            'parse_mode': 'HTML',
+            'parse_mode': message.parse_mode,
             'disable_web_page_preview': True,
         }
         logger.debug(f'Sending message: {payload}.')

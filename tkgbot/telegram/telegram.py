@@ -3,8 +3,8 @@ import logging
 import aiohttp
 from aiohttp import client
 
-from . import settings
-from .settings import telegram_api_url
+from tkgbot import settings
+from tkgbot.settings import telegram_api_url
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ async def remove_webhook():
         logger.debug(f'delete Webhook return result: {response_data}')
         if response_data['ok']:
             if response_data['result'] is True:
-                logger.log('Webhook was deleted.')
+                logger.info('Webhook was deleted.')
 
 
 offset = 0
@@ -62,15 +62,3 @@ async def get_messages():
             if updates:
                 messages = [update['message'] for update in updates if 'message' in update]
                 return messages
-
-
-async def respond(response):
-    if 'text' not in response:
-        return
-
-    async with client.ClientSession() as session:
-        logger.debug(f'Sending message {response}')
-        data = response
-        async with session.post(telegram_api_url + 'sendMessage', data=data) as response:
-            response_data = await response.json()
-            logger.debug(f'Response from server: {response_data}')
