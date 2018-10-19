@@ -1,8 +1,11 @@
+import asyncio
+
 from bs4 import BeautifulSoup
 
 from tkgbot.message_builder import NewCommentsMessageBuilder
 from tkgbot.forum import forum
 from tkgbot import job
+from tkgbot.telegram import message_dispatch
 
 raw_comment = """<article class="comment first odd clearfix">
     <header><h3 class="comment__title comment-title"><a href="/comment/225767#comment-225767" class="permalink"
@@ -47,7 +50,7 @@ raw_comment = """<article class="comment first odd clearfix">
 </article>"""
 
 
-def main():
+async def main():
     parsed_comment = forum._parse_comment(BeautifulSoup(raw_comment, 'html.parser'))
     builder = NewCommentsMessageBuilder(1000)
     topic = {
@@ -61,9 +64,12 @@ def main():
     print(parsed_comment.date)
     builder.add_comment(topic, parsed_comment)
 
-    job.send_message(229275810, builder.get_message())
+    message = message_dispatch.TelegramMessage(229275810, builder.get_message())
+    sender = message_dispatch.TelegramSender()
+    await sender.send_message(message)
 
-    print(parsed_comment)
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()

@@ -3,6 +3,7 @@ from collections import defaultdict
 import datetime
 import requests
 
+from tkgbot.telegram.message_dispatch import TelegramMessage
 from .forum import forum
 from .message_builder import NewCommentsMessageBuilder
 from .settings import translation, telegram_api_url
@@ -22,7 +23,7 @@ def send_message(chat_id, text):
     r = requests.post(telegram_api_url + 'sendMessage', params=payload)
 
 
-def send_message_new_comments(comment_updates):
+def send_message_new_comments(comment_updates, application):
     for user, updates in comment_updates.items():
         builder = NewCommentsMessageBuilder(maxsize=4000)
         for topic, comments in updates:
@@ -32,17 +33,19 @@ def send_message_new_comments(comment_updates):
                     send_message(user, msg)
         msg = builder.get_message()
         if msg:
-            send_message(user, msg)
+            message = TelegramMessage(user, msg)
+            application['message_queue'].put_nowait(message)
 
 
-def send_message_new_topics(topic_updates):
+def send_message_new_topics(topic_updates, application):
     for user, updates in topic_updates.items():
         msg_list = [_('New topics:'), '\n']
         for topic in updates:
             msg_list.append(NewCommentsMessageBuilder._construct_topic_header(topic))
             msg_list.append('\n')
         msg = ''.join(msg_list)
-        send_message(user, msg)
+        message = TelegramMessage(user, msg)
+        application['message_queue'].put_nowait(message)
 
 
 def _get_subscriptions(node):
@@ -89,7 +92,7 @@ def _get_or_create_parent_node(node, session, topic):
     return parent_node
 
 
-def run():
+def run(application):
     with session_scope() as session:
         updates_comments_new = defaultdict(list)
         updates_topics_new = defaultdict(list)
@@ -129,9 +132,5 @@ def run():
                 if sub_comments:
                     updates_comments_new[chat_id].append((topic, sub_comments))
 
-        send_message_new_topics(updates_topics_new)
-        send_message_new_comments(updates_comments_new)
-
-
-if __name__ == '__main__':
-    run()
+        send_message_new_topics(updates_topics_new, application)
+        send_message_new_comments(updates_comments_new, application)

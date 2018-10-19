@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pytest-asyncio = "*"
+pytest-mock = "*"
 
 [packages]
 "beautifulsoup4" = "*"
