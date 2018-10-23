@@ -6,7 +6,7 @@ from functools import partial
 from tkgbot.telegram.message_dispatch import MessageWorker, TelegramSender
 from . import job
 from . import settings
-from tkgbot.telegram import telegram
+from tkgbot.telegram import polling, message_dispatch
 from .tkgbot import TkgBot
 
 
@@ -18,12 +18,12 @@ async def worker(application):
 
     while True:
         try:
-            messages = await telegram.get_messages()
+            messages = await polling.get_messages()
             for message in messages:
                 response = bot.process_request(message)
                 if response:
                     await application['message_queue'].put(response)
-        except telegram.TelegramError:
+        except polling.TelegramError:
             logger.warning(f'Error while getting messages from telegram', exc_info=True)
             await asyncio.sleep(5)
 
@@ -38,7 +38,7 @@ async def forum_check_scheduler(application):
 
 
 def init_message_dispatch(application, loop: asyncio.AbstractEventLoop):
-    message_queue = asyncio.Queue()
+    message_queue = message_dispatch.MessageQueue()
     sender = TelegramSender()
     message_worker = MessageWorker(message_queue, sender)
     task = loop.create_task(message_worker.run())

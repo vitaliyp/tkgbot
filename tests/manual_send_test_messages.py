@@ -6,6 +6,7 @@ from tkgbot.message_builder import NewCommentsMessageBuilder
 from tkgbot.forum import forum
 from tkgbot import job
 from tkgbot.telegram import message_dispatch
+from tkgbot.telegram.message_dispatch import TelegramPhotoMessage
 
 raw_comment = """<article class="comment first odd clearfix">
     <header><h3 class="comment__title comment-title"><a href="/comment/225767#comment-225767" class="permalink"
@@ -69,7 +70,13 @@ async def main():
     await sender.send_message(message)
 
 
+async def send_photos():
+    photo_link = 'https://www.google.com.ua/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png'
+    message = TelegramPhotoMessage(229275810, text='', photo_url=photo_link)
+    sender = message_dispatch.TelegramSender()
+    await sender.send_message(message)
+
+
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
+    asyncio.run(main())
+    asyncio.run(send_photos())
