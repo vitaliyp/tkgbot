@@ -3,7 +3,7 @@ from collections import defaultdict
 import datetime
 import requests
 
-from tkgbot.telegram.message_dispatch import TelegramMessage
+from tkgbot.telegram.message_dispatch import TelegramMessage, MessagePriority
 from .forum import forum
 from .message_builder import NewCommentsMessageBuilder
 from .settings import translation, telegram_api_url
@@ -34,7 +34,7 @@ def send_message_new_comments(comment_updates, application):
         msg = builder.get_message()
         if msg:
             message = TelegramMessage(user, msg)
-            application['message_queue'].put_nowait(message)
+            application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
 
 
 def send_message_new_topics(topic_updates, application):
@@ -45,7 +45,7 @@ def send_message_new_topics(topic_updates, application):
             msg_list.append('\n')
         msg = ''.join(msg_list)
         message = TelegramMessage(user, msg)
-        application['message_queue'].put_nowait(message)
+        application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
 
 
 def _get_subscriptions(node):

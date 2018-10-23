@@ -3,7 +3,7 @@ import concurrent
 import logging
 from functools import partial
 
-from tkgbot.telegram.message_dispatch import MessageWorker, TelegramSender
+from tkgbot.telegram.message_dispatch import MessageWorker, TelegramSender, MessagePriority
 from . import job
 from . import settings
 from tkgbot.telegram import polling, message_dispatch
@@ -22,7 +22,7 @@ async def worker(application):
             for message in messages:
                 response = bot.process_request(message)
                 if response:
-                    await application['message_queue'].put(response)
+                    application['message_queue'].put_nowait(response, MessagePriority.COMMAND)
         except polling.TelegramError:
             logger.warning(f'Error while getting messages from telegram', exc_info=True)
             await asyncio.sleep(5)

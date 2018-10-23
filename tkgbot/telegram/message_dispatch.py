@@ -84,7 +84,6 @@ class MessageQueue:
             self._message_id += 1
 
     async def get(self):
-        with self.lock:
             priority, item = await self._queue.get()
             return item
 
