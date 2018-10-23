@@ -69,4 +69,4 @@ class ParsedBody:
         return self.to_telegram_html()
 
     def to_telegram_html(self):
-        return ' '.join(component.to_telegram_html() for component in self. components).strip()
+        return ''.join(component.to_telegram_html() for component in self. components).strip()

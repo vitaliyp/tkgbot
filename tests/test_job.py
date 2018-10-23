@@ -1,8 +1,9 @@
 import unittest
 
-from tkgbot.forum.components import Comment, ParsedBody
+from tkgbot.forum.components import Comment, ParsedBody, CommentText
 from tkgbot.message_builder import NewCommentsMessageBuilder
 import datetime
+from tkgbot.utils import escape_html_characters
 
 
 class TestCommentsMessageBuilder(unittest.TestCase):
@@ -11,7 +12,7 @@ class TestCommentsMessageBuilder(unittest.TestCase):
 
         builder = NewCommentsMessageBuilder(maxsize=1000)
         comment_data = {
-            'body': ParsedBody('Comment body'),
+            'body': ParsedBody('Comment body', [CommentText('Comment body')]),
             'user_name': 'username',
             'date': datetime.datetime(year=2017, month=3, day=2, hour=1, minute=23, second=34),
             'subject': 'Subject',
@@ -38,18 +39,19 @@ class TestCommentsMessageBuilder(unittest.TestCase):
                         'SUBJECT\n'
                         'Comment body\n'
                         )
+        print(msg, expected_msg)
 
         self.assertEqual(msg, expected_msg)
 
 
 class TestEscaping(unittest.TestCase):
     def test_html_escaping(self):
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters(''), '')
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('<'), '&lt;')
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('>'), '&gt;')
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('&'), '&amp;')
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('"'), '&quot;')
-        self.assertEqual(NewCommentsMessageBuilder._escape_html_characters('asd&as<strong>asd'),
+        self.assertEqual(escape_html_characters(''), '')
+        self.assertEqual(escape_html_characters('<'), '&lt;')
+        self.assertEqual(escape_html_characters('>'), '&gt;')
+        self.assertEqual(escape_html_characters('&'), '&amp;')
+        self.assertEqual(escape_html_characters('"'), '&quot;')
+        self.assertEqual(escape_html_characters('asd&as<strong>asd'),
                           'asd&amp;as&lt;strong&gt;asd')
 
 
