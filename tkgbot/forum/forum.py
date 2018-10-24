@@ -161,6 +161,8 @@ def _parse_tag(tag: bs4.Tag):
                 if parsed_components:
                     parts_list.extend(parsed_components)
                     parts_list.append(CommentLineBreak())
+            elif tag_name == 'br':
+                parts_list.append(CommentLineBreak())
             elif tag_name == 'img':
                 src = child.get('src')
                 parts_list.append(CommentImage(src))

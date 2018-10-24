@@ -108,3 +108,18 @@ def test_parse_body_with_link():
 
     result = parsed_body.to_telegram_html()
     assert result == """Test Body.\n<a href="https://example.com">link</a>"""
+
+def test_parse_body_with_br():
+    body_html = """
+<div class="field-item even">
+    <p>Line1<br>Line2</p>
+</div>
+"""
+    bs = BeautifulSoup(body_html, 'html.parser')
+    body_element = bs.findChild()
+
+    parsed_body = forum._parse_comment_body(body_element)
+    print(parsed_body.to_telegram_html())
+
+    result = parsed_body.to_telegram_html()
+    assert result == """Line1\nLine2"""
