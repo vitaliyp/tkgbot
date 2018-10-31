@@ -4,7 +4,7 @@ CONTAINER_NAME="tkgbot-${TRAVIS_BRANCH}"
 IMAGE="$DOCKER_USERNAME/$DOCKER_REPO"
 source scripts/env-$TRAVIS_BRANCH.sh
 
-restart_option="--rm"
+restart_option=""
 volume_option=""
 
 case $TRAVIS_BRANCH in
