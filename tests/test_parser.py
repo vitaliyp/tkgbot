@@ -64,7 +64,7 @@ def test_parse_simple_comment():
 def test_parse_text_body():
     body_html = """
 <div class="field-item even">
-    <p>Test Body.&nbsp;</p>
+    <p>Test Body.</p>
 </div>
 """
     bs = BeautifulSoup(body_html, 'html.parser')
@@ -76,10 +76,11 @@ def test_parse_text_body():
     result = parsed_body.to_telegram_html()
     assert result == """Test Body."""
 
-def test_parse_image_body():
+
+def test_parse_body_with_image():
     body_html = """
 <div class="field-item even">
-    <p>Test Body.&nbsp;</p>
+    <p>Test Body.</p>
     <img src="https://example.com/test.jpg"></img>
 </div>
 """
@@ -96,7 +97,7 @@ def test_parse_image_body():
 def test_parse_body_with_link():
     body_html = """
 <div class="field-item even">
-    <p>Test Body.&nbsp;</p>
+    <p>Test Body.</p>
     <p><a href="https://example.com">link</a></p>
 </div>
 """
@@ -108,6 +109,7 @@ def test_parse_body_with_link():
 
     result = parsed_body.to_telegram_html()
     assert result == """Test Body.\n<a href="https://example.com">link</a>"""
+
 
 def test_parse_body_with_br():
     body_html = """
@@ -123,3 +125,20 @@ def test_parse_body_with_br():
 
     result = parsed_body.to_telegram_html()
     assert result == """Line1\nLine2"""
+
+
+def test_parse_body_with_nbsp():
+    body_html = """
+<div class="field-item even">
+    <p>&nbsp;Line1&nbsp;Line2&nbsp;</p>
+    <p>&nbsp;</p>
+</div>
+"""
+    bs = BeautifulSoup(body_html, 'html.parser')
+    body_element = bs.findChild()
+
+    parsed_body = forum._parse_comment_body(body_element)
+    print(parsed_body.to_telegram_html())
+
+    result = parsed_body.to_telegram_html()
+    assert result == """ Line1 Line2"""

@@ -147,8 +147,10 @@ def _parse_tag(tag: bs4.Tag):
 
     for child in tag.children:
         if isinstance(child, bs4.NavigableString):
-            string = str(child.string).strip()
-            if string:
+            string = str(child.string)
+            # replace &nbsp with spaces
+            string = string.replace(chr(160), ' ')
+            if string and string != '\n':
                 parts_list.append(CommentText(string))
         if isinstance(child, bs4.Tag):
             tag_name = child.name
