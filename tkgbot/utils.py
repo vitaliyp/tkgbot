@@ -6,3 +6,11 @@ def escape_html_characters(text: str):
     result_text = result_text.replace('"', '&quot;')
 
     return result_text
+
+
+def intersperse(iterable, delimiter):
+    i = iter(iterable)
+    yield next(i)
+    for x in i:
+        yield delimiter
+        yield x

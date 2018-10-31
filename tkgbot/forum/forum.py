@@ -8,6 +8,7 @@ import requests
 from tkgbot import secret
 from tkgbot.forum.components import Comment, CommentImage, CommentLink, CommentText, ParsedBody, CommentLineBreak
 from tkgbot.models import NodeType
+from tkgbot.utils import intersperse
 
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
@@ -168,6 +169,26 @@ def _parse_tag(tag: bs4.Tag):
             elif tag_name == 'img':
                 src = child.get('src')
                 parts_list.append(CommentImage(src))
+            elif tag_name in ('ul', 'ol'):
+                parsed_components = _parse_tag(child)
+                if parsed_components:
+                    parts_list.extend(parsed_components)
+            elif tag_name == 'li':
+                parsed_components = _parse_tag(child)
+                if parsed_components:
+                    parts_list.append(CommentText('  • '))
+                    parts_list.extend(parsed_components)
+                    parts_list.append(CommentLineBreak())
+            elif tag_name == 'table':
+                parsed_components = _parse_tag(child)
+                if parsed_components:
+                    parts_list.extend(parsed_components)
+            elif tag_name == 'tr':
+                parsed_components = _parse_tag(child)
+                if parsed_components:
+                    row_components = intersperse(parsed_components, CommentText(' | '))
+                    parts_list.extend(row_components)
+                    parts_list.append(CommentLineBreak())
             else:
                 parts_list.extend(_parse_tag(child))
 

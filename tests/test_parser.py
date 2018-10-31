@@ -142,3 +142,47 @@ def test_parse_body_with_nbsp():
 
     result = parsed_body.to_telegram_html()
     assert result == """ Line1 Line2"""
+
+
+def test_parse_unordered_list():
+    body_html = """
+<div class="field-item even">
+    <ul>
+        <li>item1</li>
+        <li>item2</li>
+    </ul>
+</div>
+"""
+    bs = BeautifulSoup(body_html, 'html.parser')
+    body_element = bs.findChild()
+
+    parsed_body = forum._parse_comment_body(body_element)
+    print(parsed_body.to_telegram_html())
+
+    result = parsed_body.to_telegram_html()
+    assert result == """  • item1\n  • item2"""
+
+
+def test_parse_table():
+    body_html = """
+<div class="field-item even">
+    <table>
+        <tr>
+            <td>A</td>
+            <td>B</td>
+        </tr> 
+        <tr>
+            <td>C</td>
+            <td>D</td>
+        </tr> 
+    </table>
+</div>
+"""
+    bs = BeautifulSoup(body_html, 'html.parser')
+    body_element = bs.findChild()
+
+    parsed_body = forum._parse_comment_body(body_element)
+    print(parsed_body.to_telegram_html())
+
+    result = parsed_body.to_telegram_html()
+    assert result == """A | B\nC | D"""
