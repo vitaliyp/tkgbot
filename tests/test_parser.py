@@ -160,7 +160,7 @@ def test_parse_unordered_list():
     print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
-    assert result == """  • item1\n  • item2"""
+    assert result == """  ◦ item1\n  ◦ item2"""
 
 
 def test_parse_table():
@@ -186,3 +186,23 @@ def test_parse_table():
 
     result = parsed_body.to_telegram_html()
     assert result == """A | B\nC | D"""
+
+
+def test_parse_email():
+    body_html = """
+<div>
+    <script type="text/javascript">
+    <!--//--><![CDATA[// ><!--
+    eval(unescape(''%64%6f%63%75%6d%65%6e%74%2e%77%72%69%74%65%28%27%3c%61%20%68%72%65%66%3d%22%6d%61%69%6c%74%6f%3a%6d%61%69%6c%40%67%6d%61%69%6c%2e%63%6f%6d%22%3e%6d%61%69%6c%40%67%6d%61%69%6c%2e%63%6f%6d%3c%2f%61%3e%27%29%3b''))
+    //--><!]]>
+    </script>
+</div>
+"""
+    bs = BeautifulSoup(body_html, 'html.parser')
+    body_element = bs.findChild()
+
+    parsed_body = forum._parse_comment_body(body_element)
+    print(parsed_body.to_telegram_html())
+
+    result = parsed_body.to_telegram_html()
+    assert result == """<a href="mailto:mail@gmail.com">mail@gmail.com</a>"""
