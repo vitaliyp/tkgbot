@@ -22,6 +22,7 @@ esac
 ssh travis@$DEPLOYMENT_HOST -i scripts/id_rsa << EOF
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker stop $CONTAINER_NAME
+    docker rm $CONTAINER_NAME
     docker image rm $IMAGE
     docker pull $IMAGE:$TRAVIS_BRANCH
     docker run -d -e "FORUM_LOGIN=$FORUM_LOGIN" \
