@@ -4,6 +4,9 @@ import datetime
 import bs4
 from bs4 import BeautifulSoup
 import requests
+from collections import namedtuple
+
+from typing import List
 
 from tkgbot import secret
 from tkgbot.forum import parser
@@ -38,9 +41,9 @@ def visit_topic(link):
 
 
 def get_id_from_link(link):
-    m = re.match(r'/node/([\d]+)', link)
+    m = re.match(r'(https://(www.)?tkg.org.ua)?/node/(?P<node_str>[\d]+)', link)
     if m:
-        return int(m.group(1))
+        return int(m.group('node_str'))
     else:
         return None
 
@@ -149,6 +152,28 @@ def _parse_comment_body(body: bs4.Tag):
     strings = body.stripped_strings
     parsed_body = ParsedBody('\n'.join(strings), parts_list)
     return parsed_body
+
+
+Breadcrumb = namedtuple('Breadcrumb', ['name', 'link', 'node_id'])
+
+
+def _parse_breadcrumbs(soup: BeautifulSoup) -> List[Breadcrumb]:
+    breadcrumb_div = soup.find('div', class_='breadcrumb')
+    crumbs = breadcrumb_div.findAll(True, {'class': ['odd', 'even']})
+
+    parsed_crumbs = []
+    for crumb_soup in crumbs:
+        crumb_link_soup = crumb_soup.find('a')
+        if crumb_link_soup:
+            crumb_link_str = crumb_link_soup.get('href')
+            if not crumb_link_str:
+                continue
+            node_id = get_id_from_link(crumb_link_str)
+            parsed_crumbs.append(Breadcrumb(crumb_link_soup.text, crumb_link_str, node_id))
+        else:
+            parsed_crumbs.append(Breadcrumb(crumb_soup.text, None, None))
+
+    return parsed_crumbs
 
 
 def _parse_comment(comment_el):

@@ -3,6 +3,7 @@ import datetime
 from bs4 import BeautifulSoup
 
 from tkgbot.forum import forum
+from tkgbot.forum.forum import Breadcrumb
 
 comment_html = """<article class="comment first odd clearfix">
     <header><h3 class="comment__title comment-title"><a href="/comment/225767#comment-225767" class="permalink"
@@ -71,7 +72,6 @@ def test_parse_text_body():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """Test Body."""
@@ -88,7 +88,6 @@ def test_parse_body_with_image():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """Test Body.\n<a href="https://example.com/test.jpg">image</a>"""
@@ -105,7 +104,6 @@ def test_parse_body_with_link():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """Test Body.\n<a href="https://example.com">link</a>"""
@@ -121,7 +119,6 @@ def test_parse_body_with_br():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """Line1\nLine2"""
@@ -138,7 +135,6 @@ def test_parse_body_with_nbsp():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """ Line1 Line2"""
@@ -157,7 +153,6 @@ def test_parse_unordered_list():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """  ◦ item1\n  ◦ item2"""
@@ -182,7 +177,6 @@ def test_parse_table():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """A | B\nC | D"""
@@ -202,7 +196,25 @@ def test_parse_email():
     body_element = bs.findChild()
 
     parsed_body = forum._parse_comment_body(body_element)
-    print(parsed_body.to_telegram_html())
 
     result = parsed_body.to_telegram_html()
     assert result == """<a href="mailto:mail@gmail.com">mail@gmail.com</a>"""
+
+
+def test_breadcrumb_parser():
+    html = """
+    <div class="breadcrumb">
+    <span class="inline odd first"><a href="/">Головна</a></span> <span class="delimiter">»</span>
+    <span class="inline even"><a href="/forum">Форум</a></span> <span class="delimiter">»</span>
+    <span class="inline odd">Клуб</span> <span class="delimiter">»</span> <span class="inline even last">
+    <a href="https://www.tkg.org.ua/node/32552">Клуб</a></span></div>
+    """
+
+    soup = BeautifulSoup(html, 'html.parser')
+    crumbs = forum._parse_breadcrumbs(soup)
+    assert crumbs == [
+        Breadcrumb('Головна', '/', None),
+        Breadcrumb('Форум', '/forum', None),
+        Breadcrumb('Клуб', None, None),
+        Breadcrumb('Клуб', 'https://www.tkg.org.ua/node/32552', 32552),
+    ]
