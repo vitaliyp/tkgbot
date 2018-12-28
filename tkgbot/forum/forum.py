@@ -10,7 +10,7 @@ from typing import List
 
 from tkgbot import secret
 from tkgbot.forum import parser
-from tkgbot.forum.components import Comment, ParsedBody
+from tkgbot.forum.components import Comment, ParsedBody, TopicHeader
 from tkgbot.models import NodeType
 
 
@@ -180,11 +180,20 @@ def _parse_comment(comment_el):
     comment = Comment()
     # Check if comment is a reply
     comment['is_reply'] = bool(comment_el.find_parent('div', class_='indented'))
-    header = comment_el.header
-    subj_a = header.find('a', class_='permalink')
-    subject = subj_a.text
+    subj_a = comment_el.header.find('a', class_='permalink')
     comment['subject'] = subj_a.text if subj_a.text not in ('.', '') else None
     comment['link'] = subj_a['href']
+    reply_link = comment_el.find('li', class_='comment-reply').a['href']
+    comment['reply_link'] = reply_link
+    quote_link = comment_el.find('li', class_='quote').a['href']
+    comment['quote_link'] = quote_link
+
+    _fill_comment(comment_el, comment)
+    return comment
+
+
+def _fill_comment(comment_el: BeautifulSoup, comment):
+    header = comment_el.header
     submitted = header.find('p', class_='submitted')
     username_el = submitted.find(class_='username')
     user_name = username_el.text
@@ -198,14 +207,16 @@ def _parse_comment(comment_el):
     datetime_str = submitted.time['datetime']
     datetime = _parse_datetime(datetime_str)
     comment['date'] = datetime
-    comment_body_raw = comment_el.find('div', class_='field-name-comment-body').find('div', class_='field-item')
+    comment_body_raw = comment_el.find('div', {'class': ['field-name-comment-body', 'field-name-body']}).find('div', class_='field-item')
     comment_body = _parse_comment_body(comment_body_raw)
     comment['body'] = comment_body
-    reply_link = comment_el.find('li', class_='comment-reply').a['href']
-    comment['reply_link'] = reply_link
-    quote_link = comment_el.find('li', class_='quote').a['href']
-    comment['quote_link'] = quote_link
     return comment
+
+
+def _parse_header_message(soup: BeautifulSoup):
+    header = TopicHeader()
+    _fill_comment(soup, header)
+    return header
 
 
 def _get_new_comments_on_page(soup):
@@ -217,6 +228,11 @@ def _get_new_comments_on_page(soup):
         comments.append(comment)
 
     return comments
+
+
+def _get_header_message(soup: BeautifulSoup):
+    header_message_el: BeautifulSoup = soup.find('article', class_='node-forum')
+    return _parse_header_message(header_message_el)
 
 
 def get_new_comments_in_topic(link):

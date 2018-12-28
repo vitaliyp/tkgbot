@@ -7,6 +7,22 @@ from tkgbot import utils
 
 
 @dataclass
+class TopicHeader:
+    link: str = None
+    date: datetime.datetime = None
+    anon: bool = None
+    user_name: str = None
+    user_link: str = None
+    body: 'ParsedBody' = None
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+
+@dataclass
 class Comment:
     link: str = None
     is_reply: bool = None

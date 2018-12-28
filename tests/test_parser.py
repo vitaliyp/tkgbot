@@ -218,3 +218,49 @@ def test_breadcrumb_parser():
         Breadcrumb('Клуб', None, None),
         Breadcrumb('Клуб', 'https://www.tkg.org.ua/node/32552', 32552),
     ]
+
+
+def test_header_message_parser():
+    html = """
+<article class="node-23175 node node-forum view-mode-full clearfix">
+    <header>
+        <p class="submitted"><span class="user-picture"> <a href="/user/9" title="Переглянути профіль користувача."><img
+                src="https://www.tkg.org.ua/files/pictures/picture-9.jpg" alt="Зображення користувача Belka."
+                title="Зображення користувача Belka."></a> </span> Опубліковано <a href="/user/9"
+                                                                                   title="Переглянути профіль користувача."
+                                                                                   class="username">Belka</a>
+            <time pubdate="" datetime="2011-11-23T10:46:12+02:00">Срд, 23/11/2011 - 10:46</time>
+        </p>
+    </header>
+    <div class="field field-name-field-vote field-type-vud-field field-label-hidden">
+        <div class="field-items">
+            <div class="field-item even">
+                <div class="vud-widget vud-widget-alternate" id="widget-node-23175">
+                    <div class="up-active" title="Відмітити"></div>
+                    <div class="element-invisible">Відмітити</div>
+                    <div class="alternate-votes-display">0</div>
+                </div>
+        </div>
+    </div>
+    <div class="field field-name-body field-type-text-with-summary field-label-hidden">
+        <div class="field-items">
+            <div class="field-item even"><p></p>
+                <p>Comment text</p>
+            </div>
+        </div>
+    </div>
+    <ul class="links inline">
+        <li class="comment-add first"><a href="/comment/reply/23175#comment-form"
+                                         title="Поділіться своїми думками та поглядами з приводу цього допису.">Додати
+            новий коментар</a></li>
+        <li class="quote last"><a href="/comment/reply/23175?quote=1#comment-form"
+                                  title="Цитувати цей допис у відповіді.">Цитувати</a></li>
+    </ul>
+</article>
+    """
+    soup = BeautifulSoup(html, 'html.parser')
+    header_message = forum._get_header_message(soup)
+
+    assert header_message.anon == False
+    assert header_message.user_name == 'Belka'
+    assert header_message.body.body == 'Comment text'
