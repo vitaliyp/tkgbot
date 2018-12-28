@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import datetime
+import logging
 import requests
 
 from tkgbot.telegram.message_dispatch import TelegramMessage, MessagePriority
@@ -11,6 +12,9 @@ from .database import session_scope
 from .models import Node, NodeType
 
 _ = translation.gettext
+
+
+logger = logging.getLogger(__name__)
 
 
 def send_message(chat_id, text):
@@ -96,7 +100,12 @@ def run(application):
     with session_scope() as session:
         updates_comments_new = defaultdict(list)
         updates_topics_new = defaultdict(list)
-        updated_topics = forum.get_updated_topics()
+        try:
+            updated_topics = forum.get_updated_topics()
+        except requests.ConnectionError as e:
+            logger.error(f'Error while making request to the forum: {e}')
+            return
+
         for topic in updated_topics:
             # Find or create node for this topic
             node = _get_or_create_topic_node(session, topic)

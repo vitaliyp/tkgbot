@@ -14,6 +14,10 @@ from tkgbot.forum.components import Comment, ParsedBody, TopicHeader
 from tkgbot.models import NodeType
 
 
+class ForumError(Exception):
+    pass
+
+
 NODE_LINK = 'https://www.tkg.org.ua/node/'
 ROOT_LINK = 'https://www.tkg.org.ua'
 
