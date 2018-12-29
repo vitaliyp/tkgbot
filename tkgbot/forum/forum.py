@@ -52,6 +52,16 @@ def get_id_from_link(link):
         return None
 
 
+def normalize_forum_url(url):
+    short_url = shorten_forum_url(url)
+    return ROOT_LINK + short_url
+
+
+def shorten_forum_url(url):
+    m = re.match(r'((https://)?(www.)?tkg.org.ua)?/?(?P<link_location>.*)', url)
+    return '/' + m.group('link_location')
+
+
 def _parse_topic(tr):
         topic = {}
 
@@ -240,10 +250,17 @@ def _get_header_message(soup: BeautifulSoup):
 
 
 def get_new_comments_in_topic(link):
-    page = session.get(''.join((ROOT_LINK, link)))
+    page = session.get(normalize_forum_url(link))
     soup = BeautifulSoup(page.text, 'html.parser')
     comments = _get_new_comments_on_page(soup)
     return comments
+
+
+def get_topic_header_message(link):
+    page = session.get(normalize_forum_url(link))
+    soup = BeautifulSoup(page.text, 'html.parser')
+    topic_header = _get_header_message(soup)
+    return topic_header
 
 
 _login()
