@@ -6,7 +6,7 @@ import requests
 
 from tkgbot.telegram.message_dispatch import TelegramMessage, MessagePriority
 from .forum import forum
-from .message_builder import NewCommentsMessageBuilder
+from . import message_builder
 from .settings import translation, telegram_api_url
 from .database import session_scope
 from .models import Node, NodeType
@@ -17,39 +17,22 @@ _ = translation.gettext
 logger = logging.getLogger(__name__)
 
 
-def send_message(chat_id, text):
-    payload = {
-        'chat_id': chat_id,
-        'text': text,
-        'parse_mode': 'HTML',
-        'disable_web_page_preview': True,
-    }
-    r = requests.post(telegram_api_url + 'sendMessage', params=payload)
-
-
 def send_message_new_comments(comment_updates, application):
     for user, updates in comment_updates.items():
-        builder = NewCommentsMessageBuilder(maxsize=4000)
         for topic, comments in updates:
             for comment in comments:
-                msg = builder.add_comment(topic, comment)
+                msg = message_builder.construct_new_comment_message(topic, comment)
                 if msg:
-                    send_message(user, msg)
-        msg = builder.get_message()
-        if msg:
-            message = TelegramMessage(user, msg)
-            application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
+                    message = TelegramMessage(user, msg)
+                    application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
 
 
 def send_message_new_topics(topic_updates, application):
     for user, updates in topic_updates.items():
-        msg_list = [_('New topics:'), '\n']
         for topic in updates:
-            msg_list.append(NewCommentsMessageBuilder._construct_topic_header(topic))
-            msg_list.append('\n')
-        msg = ''.join(msg_list)
-        message = TelegramMessage(user, msg)
-        application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
+            msg = message_builder.construct_new_topic_message(topic)
+            message = TelegramMessage(user, msg)
+            application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
 
 
 def _get_subscriptions(node):
@@ -127,8 +110,13 @@ def run(application):
             else:
                 comments = []
 
+            topic_created = topic['status'] == 'new' and not last_checked
+
+            if topic_created and topic['type'] == NodeType.TOPIC:
+                topic['header_message'] = forum.get_topic_header_message(topic['link'])
+
             for chat_id, subscription in subscribed.items():
-                if topic['status'] == 'new' and not last_checked:
+                if topic_created:
                     updates_topics_new[chat_id].append(topic)
 
                 if not comments or subscription.no_comments:

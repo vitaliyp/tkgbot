@@ -1,3 +1,4 @@
+import logging
 import re
 import datetime
 
@@ -13,6 +14,8 @@ from tkgbot.forum import parser
 from tkgbot.forum.components import Comment, ParsedBody, TopicHeader
 from tkgbot.models import NodeType
 
+
+logger = logging.getLogger(__name__)
 
 class ForumError(Exception):
     pass
@@ -257,6 +260,7 @@ def get_new_comments_in_topic(link):
 
 
 def get_topic_header_message(link):
+    logger.debug(f'Getting topic message: {link}')
     page = session.get(normalize_forum_url(link))
     soup = BeautifulSoup(page.text, 'html.parser')
     topic_header = _get_header_message(soup)

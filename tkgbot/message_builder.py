@@ -5,93 +5,72 @@ from tkgbot import utils
 _ = translation.gettext
 
 
-class NewCommentsMessageBuilder:
-    def __init__(self, maxsize):
-        self._maxsize = maxsize
-        self._reset()
+def _format_html_bold(text: str) -> str:
+    return '<strong>' + text + '</strong>'
 
-    @classmethod
-    def _format_html_bold(cls, text: str) -> str:
-        return '<strong>' + text + '</strong>'
 
-    @classmethod
-    def _format_html_link(cls, link: str, text: str) -> str:
-        return '<a href="' + link + '">' + text + '</a>'
+def _format_html_link(link: str, text: str) -> str:
+    return '<a href="' + link + '">' + text + '</a>'
 
-    @classmethod
-    def _construct_topic_header(cls, topic):
-        l = []
+
+def _construct_topic_header(topic):
+    l = []
+    l.extend((
+        _format_html_link(forum.ROOT_LINK + topic['link'], utils.escape_html_characters(topic['name'])),
+    ))
+    if topic['section_name']:
         l.extend((
-            cls._format_html_link(forum.ROOT_LINK + topic['link'], utils.escape_html_characters(topic['name'])),
+            ' - ',
+            _format_html_link(forum.ROOT_LINK + topic['section_link'], utils.escape_html_characters(topic['section_name'])),
         ))
-        if topic['section_name']:
-            l.extend((
-                ' - ',
-                cls._format_html_link(forum.ROOT_LINK + topic['section_link'], utils.escape_html_characters(topic['section_name'])),
-            ))
-        l.append('\n')
-        return ''.join(l)
+    return ''.join(l)
 
-    @classmethod
-    def _construct_comment(cls, comment):
-        l = []
-        l.extend([
-            cls._format_html_bold(utils.escape_html_characters(comment['user_name'])
-                              + ' | '
-                              + comment['date'].strftime('%d.%m.%y %H:%M'),
-                              ),
-            ' ',
-            cls._format_html_link(forum.ROOT_LINK + comment['link'], _('link')),
-            ' ',
-            cls._format_html_link(forum.ROOT_LINK + comment['reply_link'], _('reply')),
-            '\n',
-        ])
-        if comment['subject']:
-            l.extend((utils.escape_html_characters(comment['subject'].upper()), '\n'))
-        l.extend((comment.body.to_telegram_html(), '\n'))
-        return ''.join(l)
 
-    def _reset(self):
-        self._list = []
-        self._size = 0
-        self._has_topics = False
-        self._current_topic_has_comments = False
-        self._current_topic = None
-        self._current_header = None
+def _construct_comment_body(comment):
+    l = []
+    l.extend([
+        _format_html_bold(utils.escape_html_characters(comment['user_name'])
+                          + ' | '
+                          + comment['date'].strftime('%d.%m.%y %H:%M'),
+                          ),
+        ' ',
+        _format_html_link(forum.ROOT_LINK + comment['link'], _('link')),
+        ' ',
+        _format_html_link(forum.ROOT_LINK + comment['reply_link'], _('reply')),
+        '\n',
+    ])
+    if comment['subject']:
+        l.extend((utils.escape_html_characters(comment['subject'].upper()), '\n'))
+    l.extend((comment.body.to_telegram_html()))
+    return ''.join(l)
 
-    def _append(self, msg_part):
-        self._list.append(msg_part)
-        self._size += len(msg_part)
 
-    def get_message(self):
-        if self._size:
-            return ''.join(self._list)
-        return None
+def _construct_topic_message_body(comment):
+    l = []
+    l.extend([
+        _format_html_bold(utils.escape_html_characters(comment['user_name'])
+                          + ' | '
+                          + comment['date'].strftime('%d.%m.%y %H:%M'),
+                          ),
+        '\n',
+    ])
+    l.extend((comment.body.to_telegram_html()))
+    return ''.join(l)
 
-    def add_comment(self, topic, comment):
-        if self._current_topic is not topic or not self._current_header:
-            self._current_header = self._construct_topic_header(topic)
-            self._current_topic = topic
-            self._current_topic_has_comments = False
 
-        header_str = self._current_header if not self._current_topic_has_comments else ''
-        blanks_before_header = '\n\n' if header_str and self._has_topics else ''
-        blanks_before_comment = '\n' if self._current_topic_has_comments else ''
-        comment_str = self._construct_comment(comment)
+def construct_new_topic_message(topic):
+    parts = [
+        _format_html_bold('New topic:'),
+        _construct_topic_header(topic),
+    ]
+    if 'header_message' in topic:
+        parts.append(_construct_topic_message_body(topic['header_message']))
 
-        msg_part = ''.join([blanks_before_header, header_str, blanks_before_comment, comment_str])
+    return '\n'.join(parts)
 
-        if self._size + len(msg_part) < self._maxsize:
-            self._append(msg_part)
-            self._current_topic_has_comments = True
-            self._has_topics = True
-            return None
-        else:
-            if len(msg_part) >= self._maxsize:
-                msg_part = msg_part[:self._maxsize - 3] + '...'
-            msg = self.get_message()
-            self._list = []
-            self._size = 0
-            self._append(msg_part)
-            self._current_topic_has_comments = True
-            return msg
+
+def construct_new_comment_message(topic, comment):
+    return '\n'.join((
+        _construct_topic_header(topic),
+        _construct_comment_body(comment),
+    ))

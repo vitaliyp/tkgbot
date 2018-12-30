@@ -2,9 +2,8 @@ import asyncio
 
 from bs4 import BeautifulSoup
 
-from tkgbot.message_builder import NewCommentsMessageBuilder
+from tkgbot.message_builder import construct_new_comment_message
 from tkgbot.forum import forum
-from tkgbot import job
 from tkgbot.telegram import message_dispatch
 from tkgbot.telegram.message_dispatch import TelegramPhotoMessage
 
@@ -53,7 +52,6 @@ raw_comment = """<article class="comment first odd clearfix">
 
 async def main():
     parsed_comment = forum._parse_comment(BeautifulSoup(raw_comment, 'html.parser'))
-    builder = NewCommentsMessageBuilder(1000)
     topic = {
         'name': 'Topic_name',
         'section_name': 'Section_name',
@@ -62,10 +60,9 @@ async def main():
 
     }
 
-    print(parsed_comment.date)
-    builder.add_comment(topic, parsed_comment)
+    message = construct_new_comment_message(topic, parsed_comment)
 
-    message = message_dispatch.TelegramMessage(229275810, builder.get_message())
+    message = message_dispatch.TelegramMessage(229275810, message)
     sender = message_dispatch.TelegramSender()
     await sender.send_message(message)
 
