@@ -1,8 +1,5 @@
 language: python
 
-services:
-    - docker
-
 sudo: required
 
 dist: xenial
@@ -10,14 +7,7 @@ dist: xenial
 python:
     - 3.7
 
-before_install:
-    - openssl aes-256-cbc -K $encrypted_30e98ec1cee5_key -iv $encrypted_30e98ec1cee5_iv -in scripts/id_rsa.enc -out scripts/id_rsa -d && chmod 400 scripts/id_rsa
-    - openssl aes-256-cbc -K $encrypted_acdabe5614ea_key -iv $encrypted_acdabe5614ea_iv -in scripts/secrets.tar.enc -out scripts/secrets.tar -d
-    - tar xvf scripts/secrets.tar -C scripts
-
 install:
-    - echo "|1|zFoi3NWuNMfPjYTElAfUMvx1AsU=|SoWJXLqRYTs/B5c2ikNFsm4RCzs= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMIM1KPTai7TeWpm+lhTkdkhqbasli1qqEHDOpmxFM83HPPe9IOcDgGjBS1sm3tbhL2nK2sjE+vOLZsH2TbPx1Y=" >> $HOME/.ssh/known_hosts
-    - echo "|1|P4C9N+uNEga7QcQSIR58BSkeqpw=|rMvtLT+zFDoCvzkk98xCxtYtlS4= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDurttScvMeqBPkPKvPxjaX/B/2WjWnP41Dfsdow43eJsiPF4my01g1U3k/i+eP8I4eTtUOxQRf+2ItmrFwy1+9OEaD6qxlH0M9gki3mdEw3PA4Sr3Fn5xK01U+yrJmEkmIcoTc3XoZepGSOKn5guUMMuDMmyzVfQBHjkx0mPqAG8dltDEZAAte3/UPv+qw2DF4htXyzNRmIUoTm4dScJMaadzyBGgXKFjlnjVuKNJ2LJCcx+d2fG30uYzJiXgoCkG12sf4NVJpxEtvs87LUnkSp8yEUPrkE6QX+AtxZtwLt40YYFbHzcPq4t8FLrB1X+sSWiEHyimZL51M/4jw38uN" >> $HOME/.ssh/known_hosts
     - pip install pipenv
     - pipenv install --dev
 
@@ -29,21 +19,3 @@ script:
 
 after_success:
     - codecov
-
-deploy:
-    - provider: script
-      on:
-          branch: develop
-      skip_cleanup: true
-      script:
-        bash scripts/build_docker_image.sh;
-        bash scripts/deploy.sh
-
-    - provider: script
-      on:
-          branch: master
-          tags: true
-      skip_cleanup: true
-      script:
-          bash scripts/build_docker_image.sh;
-          bash scripts/deploy.sh
