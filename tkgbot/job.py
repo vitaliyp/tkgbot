@@ -13,16 +13,6 @@ from .models import Node, NodeType
 _ = translation.gettext
 
 
-def send_message(chat_id, text):
-    payload = {
-        'chat_id': chat_id,
-        'text': text,
-        'parse_mode': 'HTML',
-        'disable_web_page_preview': True,
-    }
-    r = requests.post(telegram_api_url + 'sendMessage', params=payload)
-
-
 def send_message_new_comments(comment_updates, application):
     for user, updates in comment_updates.items():
         builder = NewCommentsMessageBuilder(maxsize=4000)
@@ -30,7 +20,8 @@ def send_message_new_comments(comment_updates, application):
             for comment in comments:
                 msg = builder.add_comment(topic, comment)
                 if msg:
-                    send_message(user, msg)
+                    message = TelegramMessage(user, msg)
+                    application['message_queue'].put_nowait(message, MessagePriority.NOTIFICATION)
         msg = builder.get_message()
         if msg:
             message = TelegramMessage(user, msg)
