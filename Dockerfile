@@ -3,6 +3,10 @@ FROM python:3.8-alpine
 COPY Pipfile* /tkgbot/
 WORKDIR /tkgbot
 
+RUN apk update && apk add python3-dev \
+                        gcc \
+                        libc-dev
+
 RUN pip install pipenv && pipenv sync
 
 COPY . /tkgbot
