@@ -4,15 +4,15 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pytest = "*"
-pytest-asyncio = "*"
-pytest-mock = "*"
+pytest = "5"
+pytest-asyncio = "0.10"
+pytest-mock = "1"
 
 [packages]
-"beautifulsoup4" = "*"
-requests = "*"
-sqlalchemy = "*"
-aiohttp = "*"
+"beautifulsoup4" = "4"
+requests = "2"
+sqlalchemy = "1.4"
+aiohttp = "3"
 
 [requires]
 python_version = "3.8"
