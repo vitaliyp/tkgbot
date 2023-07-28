@@ -33,7 +33,10 @@ async def forum_check_scheduler(application):
     loop = asyncio.get_event_loop()
     while True:
         logger.info('Checking forum for updates.')
-        await loop.run_in_executor(executor, partial(job.run, application))
+        try:
+            await loop.run_in_executor(executor, partial(job.run, application))
+        except Exception:
+            logger.exception('Error while checking forum')
         await asyncio.sleep(settings.forum_check_interval)
 
 
